@@ -7,6 +7,7 @@
     tools:context="br.cassioy.bakingapp.RecipeMainActivity">
 
     <fragment
+        android:name="br.cassioy.bakingapp.RecipeMainFragment"
         android:id="@+id/recipe_main_fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
