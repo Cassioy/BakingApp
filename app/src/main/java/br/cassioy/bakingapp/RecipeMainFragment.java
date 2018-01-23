@@ -5,11 +5,22 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import br.cassioy.bakingapp.model.Recipe;
+import br.cassioy.bakingapp.service.RecipeService;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -17,7 +28,9 @@ import java.util.ArrayList;
 public class RecipeMainFragment extends Fragment {
 
     private RecipeAdapter mRecipeAdapter;
-    private ArrayList<Recipe> recipeList = new ArrayList<>();
+    private RecyclerView mRecyclerView;
+    private ArrayList<Recipe> mRecipeList = new ArrayList<>();
+    private static final String BASE_URL = "https://d17h27t6h515a5.cloudfront.net/topher/";
 
 
     @Override
@@ -33,26 +46,36 @@ public class RecipeMainFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         // Setup any handles to view objects here
         // EditText etFoo = (EditText) view.findViewById(R.id.etFoo);
-        RecyclerView mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view_main);
-
-        mRecipeAdapter = new RecipeAdapter(recipeList);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view_main);
+        mRecipeAdapter = new RecipeAdapter(mRecipeList);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext().getApplicationContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        Recipe recipe1 = new Recipe("Nutella Pie");
-        Recipe recipe2 = new Recipe("Brownies");
-        Recipe recipe3 = new Recipe("Yellow Cake");
-        Recipe recipe4 = new Recipe("Cheesecake");
+        RecipeService recipeService = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create())
+                .build().create(RecipeService.class);
 
-        recipeList.add(recipe1);
-        recipeList.add(recipe2);
-        recipeList.add(recipe3);
-        recipeList.add(recipe4);
+        Log.d("RX CALL LOOKUP", "onViewCreated: " + recipeService.toString());
 
-        mRecipeAdapter.notifyDataSetChanged();
+        recipeService.register().observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(this::handleResponse,this::handleError);
 
 
+    }
+
+    private void handleError(Throwable error) {
+        Toast.makeText(getContext(),"Error "+ error.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+        Log.d("RX ERROR", "handleError: " + error.getLocalizedMessage());
+
+    }
+
+    private void handleResponse(List<Recipe> recipes) {
+        mRecipeList = new ArrayList<>(recipes);
+        mRecipeAdapter = new RecipeAdapter(mRecipeList);
         mRecyclerView.setAdapter(mRecipeAdapter);
 
     }

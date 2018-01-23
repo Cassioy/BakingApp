@@ -8,6 +8,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import br.cassioy.bakingapp.model.Recipe;
+
 /**
  * Created by cassioimamura on 1/13/18.
  */
@@ -24,11 +26,11 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
     // Used to cache the views within the item layout for fast access
     public class RecipeViewHolder extends RecyclerView.ViewHolder{
 
-        final TextView recipeName;
+        private TextView recipeName;
 
         public RecipeViewHolder(View view) {
             super(view);
-            recipeName = (TextView) view.findViewById(R.id.recipe_main_item);
+            recipeName = view.findViewById(R.id.recipe_main_item);
         }
     }
 
@@ -42,8 +44,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
 
     @Override
     public void onBindViewHolder(RecipeViewHolder holder, int position) {
-        Recipe recipe = mRecipes.get(position);
-        holder.recipeName.setText(recipe.getName());
+        holder.recipeName.setText(mRecipes.get(position).getName());
     }
 
     @Override

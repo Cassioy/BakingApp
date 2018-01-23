@@ -1,4 +1,4 @@
-package br.cassioy.bakingapp;
+package br.cassioy.bakingapp.model;
 
 
 import com.google.gson.annotations.Expose;
@@ -23,10 +23,10 @@ public class Recipe {
     private List<Ingredient> ingredients = null;
     @SerializedName("steps")
     @Expose
-    private List<Step> steps = null;
+    private List<Ingredient.Step> steps = null;
     @SerializedName("servings")
     @Expose
-    private Integer servings;
+    private Double servings;
     @SerializedName("image")
     @Expose
     private String image;
@@ -61,19 +61,19 @@ public class Recipe {
         this.ingredients = ingredients;
     }
 
-    public List<Step> getSteps() {
+    public List<Ingredient.Step> getSteps() {
         return steps;
     }
 
-    public void setSteps(List<Step> steps) {
+    public void setSteps(List<Ingredient.Step> steps) {
         this.steps = steps;
     }
 
-    public Integer getServings() {
+    public Double getServings() {
         return servings;
     }
 
-    public void setServings(Integer servings) {
+    public void setServings(Double servings) {
         this.servings = servings;
     }
 
