@@ -9,6 +9,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import br.cassioy.bakingapp.model.Recipe;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * Created by cassioimamura on 1/13/18.
@@ -26,11 +28,14 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
     // Used to cache the views within the item layout for fast access
     public class RecipeViewHolder extends RecyclerView.ViewHolder{
 
-        private TextView recipeName;
+        @BindView(R.id.recipe_main_item) TextView recipeName;
+
 
         public RecipeViewHolder(View view) {
             super(view);
-            recipeName = view.findViewById(R.id.recipe_main_item);
+            ButterKnife.bind(this, view);
+
+
         }
     }
 

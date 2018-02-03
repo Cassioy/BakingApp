@@ -6,11 +6,10 @@
     android:layout_height="match_parent"
     tools:context="br.cassioy.bakingapp.RecipeMainActivity">
 
-    <fragment
-        android:name="br.cassioy.bakingapp.RecipeMainFragment"
+    <FrameLayout
         android:id="@+id/recipe_main_fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-    </fragment>
+    </FrameLayout>
 
 </LinearLayout>

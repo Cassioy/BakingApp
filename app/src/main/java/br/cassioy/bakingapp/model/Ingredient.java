@@ -1,10 +1,13 @@
 
 package br.cassioy.bakingapp.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Ingredient {
+public class Ingredient implements Parcelable {
 
     @SerializedName("quantity")
     @Expose
@@ -40,7 +43,7 @@ public class Ingredient {
         this.ingredient = ingredient;
     }
 
-    public static class Step {
+    public static class Step implements Parcelable{
 
         @SerializedName("id")
         @Expose
@@ -57,6 +60,7 @@ public class Ingredient {
         @SerializedName("thumbnailURL")
         @Expose
         private String thumbnailURL;
+
 
         public Integer getId() {
             return id;
@@ -98,5 +102,75 @@ public class Ingredient {
             this.thumbnailURL = thumbnailURL;
         }
 
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeValue(this.id);
+            dest.writeString(this.shortDescription);
+            dest.writeString(this.description);
+            dest.writeString(this.videoURL);
+            dest.writeString(this.thumbnailURL);
+        }
+
+        public Step() {
+        }
+
+        protected Step(Parcel in) {
+            this.id = (Integer) in.readValue(Integer.class.getClassLoader());
+            this.shortDescription = in.readString();
+            this.description = in.readString();
+            this.videoURL = in.readString();
+            this.thumbnailURL = in.readString();
+        }
+
+        public static final Creator<Step> CREATOR = new Creator<Step>() {
+            @Override
+            public Step createFromParcel(Parcel source) {
+                return new Step(source);
+            }
+
+            @Override
+            public Step[] newArray(int size) {
+                return new Step[size];
+            }
+        };
     }
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeValue(this.quantity);
+        dest.writeString(this.measure);
+        dest.writeString(this.ingredient);
+    }
+
+    public Ingredient() {
+    }
+
+    protected Ingredient(Parcel in) {
+        this.quantity = (Double) in.readValue(Double.class.getClassLoader());
+        this.measure = in.readString();
+        this.ingredient = in.readString();
+    }
+
+    public static final Parcelable.Creator<Ingredient> CREATOR = new Parcelable.Creator<Ingredient>() {
+        @Override
+        public Ingredient createFromParcel(Parcel source) {
+            return new Ingredient(source);
+        }
+
+        @Override
+        public Ingredient[] newArray(int size) {
+            return new Ingredient[size];
+        }
+    };
 }

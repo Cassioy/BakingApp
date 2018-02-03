@@ -2,6 +2,7 @@ package br.cassioy.bakingapp;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,8 +15,10 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import br.cassioy.bakingapp.model.Ingredient;
 import br.cassioy.bakingapp.model.Recipe;
 import br.cassioy.bakingapp.service.RecipeService;
+import br.cassioy.bakingapp.support.ItemClickSupport;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import retrofit2.Retrofit;
@@ -63,6 +66,33 @@ public class RecipeMainFragment extends Fragment {
         recipeService.register().observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(this::handleResponse,this::handleError);
+
+        ItemClickSupport.addTo(mRecyclerView).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
+            @Override
+            public void onItemClicked(RecyclerView recyclerView, int position, View v) {
+                List<Ingredient> ingredients = mRecipeList.get(position).getIngredients();
+                List<Ingredient.Step> recipeStep = mRecipeList.get(position).getSteps();
+
+                Bundle bundle = new Bundle();
+                bundle.putParcelableArrayList("ingredients", (ArrayList<Ingredient>) ingredients);
+                bundle.putParcelableArrayList("steps", (ArrayList<Ingredient.Step>) recipeStep);
+
+                RecipeDescriptionFragment frag = new RecipeDescriptionFragment();
+                frag.setArguments(bundle);
+
+                // Create new fragment and transaction
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
+
+                // Replace whatever is in the fragment_container view with this fragment,
+                // and add the transaction to the back stack
+                transaction.replace(R.id.recipe_main_fragment, frag);
+                transaction.addToBackStack(null);
+
+                // Commit the transaction
+                transaction.commit();
+
+            }
+        });
 
 
     }
