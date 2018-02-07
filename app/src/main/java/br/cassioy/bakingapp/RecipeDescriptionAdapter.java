@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -28,6 +29,8 @@ public class RecipeDescriptionAdapter extends RecyclerView.Adapter<RecipeDescrip
 
         //@BindView(R.id.ingredients_list) TextView ingredientsName;
         @BindView(R.id.steps_list_item) TextView stepsName;
+        @BindView(R.id.videoplayer_icon) ImageView videoPlayer;
+
 
         public RecipeDescriptionViewHolder(View view) {
             super(view);
@@ -52,7 +55,10 @@ public class RecipeDescriptionAdapter extends RecyclerView.Adapter<RecipeDescrip
     @Override
     public void onBindViewHolder(RecipeDescriptionViewHolder holder, int position) {
         //holder.ingredientsName.setText(mIngredients.toString());
-        holder.stepsName.setText(mRecipeStep.get(position).getShortDescription());
+        if(!mRecipeStep.get(position).getVideoURL().isEmpty()){
+            holder.videoPlayer.setVisibility(View.VISIBLE);
+        }
+        holder.stepsName.setText(position + ". "  + mRecipeStep.get(position).getShortDescription());
 
     }
 

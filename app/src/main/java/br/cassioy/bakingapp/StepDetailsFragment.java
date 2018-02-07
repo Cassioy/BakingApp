@@ -28,6 +28,8 @@ import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 
 import br.cassioy.bakingapp.model.Ingredient;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * Created by cassioimamura on 2/1/18.
@@ -40,12 +42,12 @@ public class StepDetailsFragment extends Fragment {
     private DefaultTrackSelector trackSelector;
     private boolean shouldAutoPlay;
     private BandwidthMeter bandwidthMeter;
-    private SimpleExoPlayerView playerView;
-    private TextView stepDetails;
     private ArrayList<Ingredient.Step> mRecipeStep = new ArrayList<>();
     private int position;
     private Uri videoThumbUri;
 
+    @BindView(R.id.step_description_details) TextView stepDetails;
+    @BindView(R.id.step_video_view) SimpleExoPlayerView playerView;
 
     @Nullable
     @Override
@@ -62,42 +64,43 @@ public class StepDetailsFragment extends Fragment {
             position = bundle.getInt("position");
         }
 
-        playerView = view.findViewById(R.id.step_video_view);
-        stepDetails = (TextView) view.findViewById(R.id.step_description_details);
+        ButterKnife.bind(this,view);
+
         stepDetails.setText(mRecipeStep.get(position).getDescription());
         videoThumbUri = Uri.parse(mRecipeStep.get(position).getVideoURL());
 
+        if(mRecipeStep.get(position).getVideoURL().isEmpty()){
+            playerView.setVisibility(View.GONE);
 
-        initializePlayer();
+        }
 
     }
 
     private void initializePlayer() {
+        Context context = getContext();
 
         shouldAutoPlay = true;
         bandwidthMeter = new DefaultBandwidthMeter();
-
-        Context context = getContext();
-
-        playerView.requestFocus();
 
         TrackSelection.Factory videoTrackSelectionFactory =
                 new AdaptiveTrackSelection.Factory(bandwidthMeter);
 
         trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
-
         player = ExoPlayerFactory.newSimpleInstance(getContext(), trackSelector);
 
 
-        player.setPlayWhenReady(shouldAutoPlay);
+        playerView.setPlayer(player);
 
         mediaDataSourceFactory = new DefaultDataSourceFactory(context, Util.getUserAgent(context, "BakingApp"), (TransferListener<? super DataSource>) bandwidthMeter);
-
         MediaSource mediaSource = new ExtractorMediaSource.Factory(
                 mediaDataSourceFactory).createMediaSource(videoThumbUri);
 
+
         player.prepare(mediaSource);
-        playerView.setPlayer(player);
+
+        player.setPlayWhenReady(shouldAutoPlay);
+        playerView.requestFocus();
+
 
     }
 
@@ -105,6 +108,7 @@ public class StepDetailsFragment extends Fragment {
 
     private void releasePlayer() {
         if (player != null) {
+            playerView.clearFocus();
             shouldAutoPlay = player.getPlayWhenReady();
             player.release();
             player = null;
@@ -140,6 +144,14 @@ public class StepDetailsFragment extends Fragment {
     public void onStop() {
         super.onStop();
         if (Util.SDK_INT > 23) {
+            releasePlayer();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (Util.SDK_INT <= 23) {
             releasePlayer();
         }
     }

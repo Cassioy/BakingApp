@@ -19,6 +19,8 @@ import br.cassioy.bakingapp.model.Ingredient;
 import br.cassioy.bakingapp.model.Recipe;
 import br.cassioy.bakingapp.service.RecipeService;
 import br.cassioy.bakingapp.support.ItemClickSupport;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import retrofit2.Retrofit;
@@ -31,15 +33,22 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class RecipeMainFragment extends Fragment {
 
     private RecipeAdapter mRecipeAdapter;
-    private RecyclerView mRecyclerView;
     private ArrayList<Recipe> mRecipeList = new ArrayList<>();
     private static final String BASE_URL = "https://d17h27t6h515a5.cloudfront.net/topher/";
+    private String standardActionBarTitle;
+
+    @BindView(R.id.recycler_view_main) RecyclerView mRecyclerView;
+
+
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        standardActionBarTitle = getResources().getString(R.string.app_name);
+        ((RecipeMainActivity) getActivity()).setActionBarTitle(standardActionBarTitle);
+
         return inflater.inflate(R.layout.fragment_recipe_main, container, false);
     }
 
@@ -47,9 +56,8 @@ public class RecipeMainFragment extends Fragment {
     // Any view setup should occur here.  E.g., view lookups and attaching view listeners.
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        // Setup any handles to view objects here
-        // EditText etFoo = (EditText) view.findViewById(R.id.etFoo);
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view_main);
+        ButterKnife.bind(this, view);
+
         mRecipeAdapter = new RecipeAdapter(mRecipeList);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext().getApplicationContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -72,19 +80,21 @@ public class RecipeMainFragment extends Fragment {
             public void onItemClicked(RecyclerView recyclerView, int position, View v) {
                 List<Ingredient> ingredients = mRecipeList.get(position).getIngredients();
                 List<Ingredient.Step> recipeStep = mRecipeList.get(position).getSteps();
+                String recipeName = mRecipeList.get(position).getName();
 
                 Bundle bundle = new Bundle();
                 bundle.putParcelableArrayList("ingredients", (ArrayList<Ingredient>) ingredients);
                 bundle.putParcelableArrayList("steps", (ArrayList<Ingredient.Step>) recipeStep);
+                bundle.putString("recipe name", recipeName);
 
                 RecipeDescriptionFragment frag = new RecipeDescriptionFragment();
                 frag.setArguments(bundle);
 
                 // Create new fragment and transaction
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();
-
                 // Replace whatever is in the fragment_container view with this fragment,
                 // and add the transaction to the back stack
+                transaction.setCustomAnimations(R.animator.trans_left_in, R.animator.trans_left_out);
                 transaction.replace(R.id.recipe_main_fragment, frag);
                 transaction.addToBackStack(null);
 
@@ -93,8 +103,6 @@ public class RecipeMainFragment extends Fragment {
 
             }
         });
-
-
     }
 
     private void handleError(Throwable error) {
@@ -107,8 +115,8 @@ public class RecipeMainFragment extends Fragment {
         mRecipeList = new ArrayList<>(recipes);
         mRecipeAdapter = new RecipeAdapter(mRecipeList);
         mRecyclerView.setAdapter(mRecipeAdapter);
-
     }
+
 }
 
 

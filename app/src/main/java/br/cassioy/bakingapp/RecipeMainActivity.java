@@ -3,7 +3,7 @@ package br.cassioy.bakingapp;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-public class RecipeMainActivity extends AppCompatActivity{
+public class RecipeMainActivity extends AppCompatActivity {
 
 
     @Override
@@ -30,5 +30,9 @@ public class RecipeMainActivity extends AppCompatActivity{
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.recipe_main_fragment, firstFragment).commit();
         }
+    }
+
+    public void setActionBarTitle(String title) {
+        getSupportActionBar().setTitle(title);
     }
 }
