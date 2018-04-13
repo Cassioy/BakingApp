@@ -1,6 +1,10 @@
 package br.cassioy.bakingapp;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
+import android.support.test.espresso.IdlingResource;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -15,6 +19,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import br.cassioy.bakingapp.idlingresource.CustomIdlingResource;
 import br.cassioy.bakingapp.model.Ingredient;
 import br.cassioy.bakingapp.model.Recipe;
 import br.cassioy.bakingapp.service.RecipeService;
@@ -39,7 +44,8 @@ public class RecipeMainFragment extends Fragment {
 
     @BindView(R.id.recycler_view_main) RecyclerView mRecyclerView;
 
-
+    @Nullable
+    private CustomIdlingResource mIdlingResource;
 
 
     @Override
@@ -115,6 +121,18 @@ public class RecipeMainFragment extends Fragment {
         mRecipeList = new ArrayList<>(recipes);
         mRecipeAdapter = new RecipeAdapter(mRecipeList);
         mRecyclerView.setAdapter(mRecipeAdapter);
+    }
+
+    /**
+     * Only called from test, creates and returns a new {@link CustomIdlingResource}.
+     */
+    @VisibleForTesting
+    @NonNull
+    public IdlingResource getIdlingResource() {
+        if (mIdlingResource == null) {
+            mIdlingResource = new CustomIdlingResource();
+        }
+        return mIdlingResource;
     }
 
 }

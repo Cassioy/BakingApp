@@ -3,6 +3,8 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="ingredients">Ingredients</string>
-    <string name="recycler_view_testing">Recipe Introduction</string>
+    <string name="recycler_view_testing">0. Recipe Introduction</string>
     <string name="video_content_description">Video Tutorial Available</string>
+    <string name="previous_step">Step Back</string>
+    <string name="next_step">Next Step</string>
 </resources>

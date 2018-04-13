@@ -1,24 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
 
-    <com.google.android.exoplayer2.ui.SimpleExoPlayerView
-        android:id="@+id/step_video_view"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_weight="3"
-        android:layout_height="match_parent"
-        app:resize_mode="fill"
-        android:visibility="visible"/>
+        android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/step_description_details"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="2"
-        android:layout_margin="15dp"
-        android:textAlignment="center"/>
+        <com.google.android.exoplayer2.ui.SimpleExoPlayerView
+            android:id="@+id/step_video_view"
+            android:layout_width="match_parent"
+            android:layout_weight="3"
+            android:layout_height="match_parent"
+            app:resize_mode="fill"
+            android:visibility="visible"/>
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/step_description_details"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:layout_margin="15dp"
+            android:textAlignment="center"
+            android:textSize="16sp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:background="@color/colorWhite"
+            android:orientation="horizontal">
+
+            <android.support.v7.widget.AppCompatButton
+                android:id="@+id/step_previous"
+                android:textSize="@dimen/stepper_font_size"
+                android:textColor="@color/textDarkSecondary"
+                android:background="@android:color/transparent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="5dp"
+                android:drawableLeft="@drawable/ic_chevron_left"
+                android:text="@string/previous_step"
+                android:layout_weight="1"
+                style="?android:attr/borderlessButtonStyle"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="8sp"
+                    android:text="Your Recipe Progress"
+                    android:padding="8dp"
+                    android:gravity="center_horizontal"/>
+
+                <ProgressBar
+                    android:id="@+id/step_progress"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:padding="8dp"
+                    android:progressDrawable="@drawable/gradient_progress"
+                    android:secondaryProgressTint="@color/textDarkSecondary" />
+
+            </LinearLayout>
+
+
+            <android.support.v7.widget.AppCompatButton
+                android:id="@+id/step_next"
+                android:textSize="@dimen/stepper_font_size"
+                android:background="@android:color/transparent"
+                android:textColor="@color/textDarkSecondary"
+                android:textAlignment="center"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="5dp"
+                android:layout_gravity="center_vertical"
+                android:drawableRight="@drawable/ic_chevron_right"
+                android:text="@string/next_step"
+                android:layout_weight="1"
+                style="?android:attr/borderlessButtonStyle"/>
+
+
+        </LinearLayout>
+
+    </LinearLayout>

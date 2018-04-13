@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="recycler_list_text_normal">15sp</dimen>
+    <dimen name="stepper_font_size">12sp</dimen>
     <dimen name="margin_size_normal">10dp</dimen>
+
 
 
 </resources>

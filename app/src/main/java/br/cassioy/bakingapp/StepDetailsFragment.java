@@ -5,9 +5,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.android.exoplayer2.ExoPlayerFactory;
@@ -44,10 +48,17 @@ public class StepDetailsFragment extends Fragment {
     private BandwidthMeter bandwidthMeter;
     private ArrayList<Ingredient.Step> mRecipeStep = new ArrayList<>();
     private int position;
+    private int totalSteps;
+    private double progress;
+
     private Uri videoThumbUri;
+    private String stepActionBarTitle;
 
     @BindView(R.id.step_description_details) TextView stepDetails;
     @BindView(R.id.step_video_view) SimpleExoPlayerView playerView;
+    @BindView(R.id.step_progress) ProgressBar stepProgress;
+    @BindView(R.id.step_next) Button nextButton;
+    @BindView(R.id.step_previous) Button previousButton;
 
     @Nullable
     @Override
@@ -62,17 +73,64 @@ public class StepDetailsFragment extends Fragment {
         if (bundle != null) {
             mRecipeStep = bundle.getParcelableArrayList("step");
             position = bundle.getInt("position");
+            stepActionBarTitle = bundle.getString("recipe name");
+        }
+
+        //Set step number on ActionBar Title
+        if(position > 0) {
+            String title = stepActionBarTitle + " - Step " + position;
+            ((RecipeMainActivity) getActivity()).setActionBarTitle(title);
+        }else {
+            String title = stepActionBarTitle + " - " + mRecipeStep.get(position).getDescription();
+            ((RecipeMainActivity) getActivity()).setActionBarTitle(title);
         }
 
         ButterKnife.bind(this,view);
 
-        stepDetails.setText(mRecipeStep.get(position).getDescription());
-        videoThumbUri = Uri.parse(mRecipeStep.get(position).getVideoURL());
+        //Remove numbers on recipe details
+        String detailsNotFormatted = mRecipeStep.get(position).getDescription();
+        String positionString = Integer.toString(position) + ".";
+        String formattedDetails = detailsNotFormatted.replace(positionString, "");
+
+
+        stepDetails.setText(formattedDetails);
+
+        if(mRecipeStep.get(position).getVideoURL() != null) {
+            videoThumbUri = Uri.parse(mRecipeStep.get(position).getVideoURL());
+        }
 
         if(mRecipeStep.get(position).getVideoURL().isEmpty()){
             playerView.setVisibility(View.GONE);
-
         }
+
+        //Set progress bar
+        totalSteps = (mRecipeStep.size()) - 1;
+        progress = ((position*1.0)/(totalSteps*1.0));
+        progress *= 100;
+
+        int roundedProgress = (int) Math.round(progress);
+        stepProgress.setProgress(roundedProgress);
+
+        //Hiding navigation button when it's not necessary
+        if(position == 0){
+            previousButton.setVisibility(View.INVISIBLE);
+        }else if(position == totalSteps){
+            nextButton.setVisibility(View.INVISIBLE);
+        }
+
+        previousButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                passFragBundle(previousButton, position);
+            }
+        });
+
+        nextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                passFragBundle(nextButton, position);
+            }
+        });
 
     }
 
@@ -101,7 +159,6 @@ public class StepDetailsFragment extends Fragment {
         player.setPlayWhenReady(shouldAutoPlay);
         playerView.requestFocus();
 
-
     }
 
 
@@ -114,6 +171,36 @@ public class StepDetailsFragment extends Fragment {
             player = null;
             trackSelector = null;
         }
+    }
+
+    private void passFragBundle(Button button, int position){
+
+        if(button == previousButton && position > 0){
+            position -= 1;
+        }
+
+        if(button == nextButton && position < totalSteps){
+            position += 1;
+        }
+
+        Bundle bundleStepButton = new Bundle();
+        bundleStepButton.putParcelableArrayList("step", mRecipeStep);
+        Log.d("Checking Arraylist", "onItemClicked: " + mRecipeStep.get(position));
+        bundleStepButton.putInt("position", position);
+        bundleStepButton.putString("recipe name", stepActionBarTitle);
+
+
+        StepDetailsFragment stepDetailsFragment2 = new StepDetailsFragment();
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        stepDetailsFragment2.setArguments(bundleStepButton);
+
+        transaction.setCustomAnimations(R.animator.trans_left_in, R.animator.trans_left_out);
+        transaction.replace(R.id.recipe_main_fragment, stepDetailsFragment2);
+        transaction.addToBackStack(null);
+
+        // Commit the transaction
+        transaction.commit();
+
     }
 
     @Override
@@ -155,4 +242,6 @@ public class StepDetailsFragment extends Fragment {
             releasePlayer();
         }
     }
+
+
 }

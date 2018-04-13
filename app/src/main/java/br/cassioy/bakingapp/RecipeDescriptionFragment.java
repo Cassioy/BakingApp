@@ -107,6 +107,8 @@ public class RecipeDescriptionFragment extends Fragment {
                 bundleStepDetail.putParcelableArrayList("step", mRecipeStep);
                 Log.d("Checking Arraylist", "onItemClicked: " + mRecipeStep.get(position));
                 bundleStepDetail.putInt("position", position);
+                bundleStepDetail.putString("recipe name", recipeActionBarTitle);
+
 
                 StepDetailsFragment stepDetailsFragment = new StepDetailsFragment();
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();

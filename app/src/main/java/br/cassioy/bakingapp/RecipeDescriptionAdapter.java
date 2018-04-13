@@ -58,8 +58,12 @@ public class RecipeDescriptionAdapter extends RecyclerView.Adapter<RecipeDescrip
         if(!mRecipeStep.get(position).getVideoURL().isEmpty()){
             holder.videoPlayer.setVisibility(View.VISIBLE);
         }
-        holder.stepsName.setText(position + ". "  + mRecipeStep.get(position).getShortDescription());
+        if(position > 0) {
+            holder.stepsName.setText("Step " + position + " - " + mRecipeStep.get(position).getShortDescription());
+        }else{
+            holder.stepsName.setText(mRecipeStep.get(position).getShortDescription());
 
+        }
     }
 
     @Override
