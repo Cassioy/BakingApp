@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.google.android.exoplayer2.ui.SimpleExoPlayerView
+        android:id="@+id/step_video_view"
+        android:layout_width="match_parent"
+        android:layout_weight="1"
+        android:layout_height="match_parent"
+        app:resize_mode="fill"
+        android:visibility="visible"/>
+
+    <TextView
+        android:id="@+id/step_description_details"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="2"
+        android:layout_margin="15dp"
+        android:gravity="center"
+        android:textSize="16sp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:background="@color/colorWhite"
+        android:orientation="horizontal">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="8sp"
+                android:text="Your Recipe Progress"
+                android:padding="8dp"
+                android:gravity="center_horizontal"/>
+
+            <ProgressBar
+                android:id="@+id/step_progress"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:padding="8dp"
+                android:progressDrawable="@drawable/gradient_progress"
+                android:secondaryProgressTint="@color/textDarkSecondary" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

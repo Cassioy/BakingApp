@@ -1,13 +1,15 @@
 package br.cassioy.bakingapp;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
+import android.support.test.espresso.IdlingResource;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +18,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import br.cassioy.bakingapp.idlingresource.CustomIdlingResource;
 import br.cassioy.bakingapp.model.Ingredient;
 import br.cassioy.bakingapp.support.ItemClickSupport;
 import butterknife.BindView;
@@ -40,6 +43,9 @@ public class RecipeDescriptionFragment extends Fragment {
     @BindView(R.id.scroll_indicator) ImageView scrollIndicator;
     @BindView(R.id.ingredient_list_view) ViewGroup ingredientLayout;
 
+    @Nullable
+    private CustomIdlingResource mIdlingResource;
+
 
 
 
@@ -60,14 +66,15 @@ public class RecipeDescriptionFragment extends Fragment {
             recipeActionBarTitle = bundle.getString("recipe name");
         }
 
-        ((RecipeMainActivity) getActivity()).setActionBarTitle(recipeActionBarTitle);
+        ((RecipeMainActivity) getActivity()).getSupportActionBar().setTitle(recipeActionBarTitle);
+        ((RecipeMainActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //Getting Ingredients list to a TextView
         listOfIngredients = "";
         for(Ingredient ingredients: mRecipeIngredients){
             if(!ingredients.getIngredient().isEmpty()){
                 listOfIngredients += ingredients.getQuantity().toString() + " " + ingredients.getMeasure() + " of " +ingredients.getIngredient() + "\n";
-                Log.d("Ingredients list", "onViewCreated: "+ listOfIngredients);
+                //Log.d("Ingredients list", "onViewCreated: "+ listOfIngredients);
             }
         }
 
@@ -105,7 +112,7 @@ public class RecipeDescriptionFragment extends Fragment {
 
                 Bundle bundleStepDetail = new Bundle();
                 bundleStepDetail.putParcelableArrayList("step", mRecipeStep);
-                Log.d("Checking Arraylist", "onItemClicked: " + mRecipeStep.get(position));
+                //Log.d("Checking Arraylist", "onItemClicked: " + mRecipeStep.get(position));
                 bundleStepDetail.putInt("position", position);
                 bundleStepDetail.putString("recipe name", recipeActionBarTitle);
 
@@ -114,15 +121,37 @@ public class RecipeDescriptionFragment extends Fragment {
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();
                 stepDetailsFragment.setArguments(bundleStepDetail);
 
-                transaction.setCustomAnimations(R.animator.trans_left_in, R.animator.trans_left_out);
-                transaction.replace(R.id.recipe_main_fragment, stepDetailsFragment);
-                transaction.addToBackStack(null);
+                transaction.setCustomAnimations(R.animator.trans_left_in, R.animator.trans_left_out, R.animator.trans_left_in, R.animator.trans_left_out);
 
-                // Commit the transaction
-                transaction.commit();
+                boolean tabletSize = getResources().getBoolean(R.bool.is_tablet);
 
+                if(tabletSize){
+                    transaction.replace(R.id.tablet_step_details, stepDetailsFragment);
+                    transaction.addToBackStack("details");
 
+                    // Commit the transaction
+                    transaction.commit();
+
+                }else {
+                    transaction.replace(R.id.recipe_main_fragment, stepDetailsFragment);
+                    transaction.addToBackStack("details");
+
+                    // Commit the transaction
+                    transaction.commit();
+                }
             }
         });
+    }
+
+    /**
+     * Only called from test, creates and returns a new {@link CustomIdlingResource}.
+     */
+    @VisibleForTesting
+    @NonNull
+    public IdlingResource getIdlingResource() {
+        if (mIdlingResource == null) {
+            mIdlingResource = new CustomIdlingResource();
+        }
+        return mIdlingResource;
     }
 }

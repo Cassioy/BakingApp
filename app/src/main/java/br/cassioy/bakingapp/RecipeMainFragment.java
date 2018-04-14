@@ -8,6 +8,7 @@ import android.support.test.espresso.IdlingResource;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -47,16 +48,26 @@ public class RecipeMainFragment extends Fragment {
     @Nullable
     private CustomIdlingResource mIdlingResource;
 
+    public RecipeMainFragment(){
+        setRetainInstance( true );
+
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        standardActionBarTitle = getResources().getString(R.string.app_name);
-        ((RecipeMainActivity) getActivity()).setActionBarTitle(standardActionBarTitle);
 
+        //set title and navigation on ActionBar
+        standardActionBarTitle = getResources().getString(R.string.app_name);
+        ((RecipeMainActivity) getActivity()).getSupportActionBar().setTitle(standardActionBarTitle);
+        ((RecipeMainActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
+        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_recipe_main, container, false);
     }
+
+
 
     // This event is triggered soon after onCreateView().
     // Any view setup should occur here.  E.g., view lookups and attaching view listeners.
@@ -65,9 +76,20 @@ public class RecipeMainFragment extends Fragment {
         ButterKnife.bind(this, view);
 
         mRecipeAdapter = new RecipeAdapter(mRecipeList);
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext().getApplicationContext());
-        mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        boolean tabletSize = getResources().getBoolean(R.bool.is_tablet);
+
+        //Check if it's Tablet or Phone layout
+        if (tabletSize) {
+            RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getContext().getApplicationContext(), 3);
+            mRecyclerView.setLayoutManager(mLayoutManager);
+            mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        } else {
+            // do something else
+            RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext().getApplicationContext());
+            mRecyclerView.setLayoutManager(mLayoutManager);
+            mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        }
 
         RecipeService recipeService = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
@@ -75,7 +97,7 @@ public class RecipeMainFragment extends Fragment {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build().create(RecipeService.class);
 
-        Log.d("RX CALL LOOKUP", "onViewCreated: " + recipeService.toString());
+        //Log.d("RX CALL LOOKUP", "onViewCreated: " + recipeService.toString());
 
         recipeService.register().observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -100,9 +122,9 @@ public class RecipeMainFragment extends Fragment {
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();
                 // Replace whatever is in the fragment_container view with this fragment,
                 // and add the transaction to the back stack
-                transaction.setCustomAnimations(R.animator.trans_left_in, R.animator.trans_left_out);
+                transaction.setCustomAnimations(R.animator.trans_left_in, R.animator.trans_left_out, R.animator.trans_left_in, R.animator.trans_left_out);
                 transaction.replace(R.id.recipe_main_fragment, frag);
-                transaction.addToBackStack(null);
+                transaction.addToBackStack("description");
 
                 // Commit the transaction
                 transaction.commit();

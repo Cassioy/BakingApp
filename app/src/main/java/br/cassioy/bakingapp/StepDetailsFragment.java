@@ -3,10 +3,12 @@ package br.cassioy.bakingapp;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
+import android.support.test.espresso.IdlingResource;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +33,7 @@ import com.google.android.exoplayer2.util.Util;
 
 import java.util.ArrayList;
 
+import br.cassioy.bakingapp.idlingresource.CustomIdlingResource;
 import br.cassioy.bakingapp.model.Ingredient;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -57,8 +60,15 @@ public class StepDetailsFragment extends Fragment {
     @BindView(R.id.step_description_details) TextView stepDetails;
     @BindView(R.id.step_video_view) SimpleExoPlayerView playerView;
     @BindView(R.id.step_progress) ProgressBar stepProgress;
+
+    @Nullable
     @BindView(R.id.step_next) Button nextButton;
+
+    @Nullable
     @BindView(R.id.step_previous) Button previousButton;
+
+    @Nullable
+    private CustomIdlingResource mIdlingResource;
 
     @Nullable
     @Override
@@ -79,10 +89,14 @@ public class StepDetailsFragment extends Fragment {
         //Set step number on ActionBar Title
         if(position > 0) {
             String title = stepActionBarTitle + " - Step " + position;
-            ((RecipeMainActivity) getActivity()).setActionBarTitle(title);
+            ((RecipeMainActivity) getActivity()).getSupportActionBar().setTitle(title);
+            ((RecipeMainActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         }else {
-            String title = stepActionBarTitle + " - " + mRecipeStep.get(position).getDescription();
-            ((RecipeMainActivity) getActivity()).setActionBarTitle(title);
+            String title = stepActionBarTitle + " - Introduction";
+            ((RecipeMainActivity) getActivity()).getSupportActionBar().setTitle(title);
+            ((RecipeMainActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         }
 
         ButterKnife.bind(this,view);
@@ -111,27 +125,31 @@ public class StepDetailsFragment extends Fragment {
         int roundedProgress = (int) Math.round(progress);
         stepProgress.setProgress(roundedProgress);
 
-        //Hiding navigation button when it's not necessary
-        if(position == 0){
-            previousButton.setVisibility(View.INVISIBLE);
-        }else if(position == totalSteps){
-            nextButton.setVisibility(View.INVISIBLE);
+        boolean tabletSize = getResources().getBoolean(R.bool.is_tablet);
+
+        if(!tabletSize){
+            //Hiding navigation button when it's not necessary
+            if(position == 0){
+                previousButton.setVisibility(View.INVISIBLE);
+            }else if(position == totalSteps){
+                nextButton.setVisibility(View.INVISIBLE);
+            }
+
+            previousButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    passFragBundle(previousButton, position);
+                }
+            });
+
+            nextButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    passFragBundle(nextButton, position);
+                }
+            });
+
         }
-
-        previousButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                passFragBundle(previousButton, position);
-            }
-        });
-
-        nextButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                passFragBundle(nextButton, position);
-            }
-        });
-
     }
 
     private void initializePlayer() {
@@ -185,7 +203,7 @@ public class StepDetailsFragment extends Fragment {
 
         Bundle bundleStepButton = new Bundle();
         bundleStepButton.putParcelableArrayList("step", mRecipeStep);
-        Log.d("Checking Arraylist", "onItemClicked: " + mRecipeStep.get(position));
+        //Log.d("Checking Arraylist", "onItemClicked: " + mRecipeStep.get(position));
         bundleStepButton.putInt("position", position);
         bundleStepButton.putString("recipe name", stepActionBarTitle);
 
@@ -202,7 +220,6 @@ public class StepDetailsFragment extends Fragment {
         transaction.commit();
 
     }
-
     @Override
     public void onStart() {
         super.onStart();
@@ -241,7 +258,19 @@ public class StepDetailsFragment extends Fragment {
         if (Util.SDK_INT <= 23) {
             releasePlayer();
         }
+
+
     }
 
-
+    /**
+     * Only called from test, creates and returns a new {@link CustomIdlingResource}.
+     */
+    @VisibleForTesting
+    @NonNull
+    public IdlingResource getIdlingResource() {
+        if (mIdlingResource == null) {
+            mIdlingResource = new CustomIdlingResource();
+        }
+        return mIdlingResource;
+    }
 }
