@@ -6,7 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
     <RelativeLayout
         android:id="@+id/relative_layout_video"
         android:layout_width="match_parent"
@@ -21,6 +20,7 @@
             android:layout_centerHorizontal="true"
             android:visibility="gone"/>
 
+
         <com.google.android.exoplayer2.ui.SimpleExoPlayerView
             android:id="@+id/step_video_view"
             android:layout_width="match_parent"
@@ -30,8 +30,6 @@
 
     </RelativeLayout>
 
-
-
     <TextView
         android:id="@+id/step_description_details"
         android:layout_width="match_parent"
@@ -39,7 +37,8 @@
         android:layout_weight="1"
         android:layout_margin="15dp"
         android:gravity="center"
-        android:textSize="16sp"/>
+        android:textSize="16sp"
+        android:visibility="gone"/>
 
     <LinearLayout
         android:id="@+id/layout_bottom_navigation"
@@ -48,6 +47,19 @@
         android:background="@color/colorWhite"
         android:orientation="horizontal">
 
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/step_previous"
+            android:textSize="@dimen/stepper_font_size"
+            android:textColor="@color/textDarkSecondary"
+            android:background="@android:color/transparent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="5dp"
+            android:drawableLeft="@drawable/ic_chevron_left"
+            android:text="@string/previous_step"
+            android:layout_weight="1"
+            style="?android:attr/borderlessButtonStyle"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -75,6 +87,22 @@
                 android:secondaryProgressTint="@color/textDarkSecondary" />
 
         </LinearLayout>
+
+
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/step_next"
+            android:textSize="@dimen/stepper_font_size"
+            android:background="@android:color/transparent"
+            android:textColor="@color/textDarkSecondary"
+            android:textAlignment="center"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="5dp"
+            android:layout_gravity="center_vertical"
+            android:drawableRight="@drawable/ic_chevron_right"
+            android:text="@string/next_step"
+            android:layout_weight="1"
+            style="?android:attr/borderlessButtonStyle"/>
 
     </LinearLayout>
 

@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import br.cassioy.bakingapp.idlingresource.CustomIdlingResource;
 import br.cassioy.bakingapp.model.Ingredient;
@@ -35,19 +36,20 @@ public class RecipeDescriptionFragment extends Fragment {
     private ArrayList<Ingredient> mRecipeIngredients = new ArrayList<>();
     private String listOfIngredients;
     private String recipeActionBarTitle;
+    private boolean fragmentInstatiated;
+    private boolean tabletSize;
 
     @BindView(R.id.recipe_step_ingredients_rv) RecyclerView mRecyclerViewSteps;
     @BindView(R.id.ingredient_cardview) CardView ingredientsCardView;
     @BindView(R.id.recipe_ingredients) TextView recipeIngredients;
     @BindView(R.id.ingredient_title) TextView ingredientsCardTitle;
     @BindView(R.id.scroll_indicator) ImageView scrollIndicator;
-    @BindView(R.id.ingredient_list_view) ViewGroup ingredientLayout;
+
+    @Nullable
+    @BindView(R.id.empty_recipe_details) TextView emptyRecipeDescription;
 
     @Nullable
     private CustomIdlingResource mIdlingResource;
-
-
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -69,11 +71,25 @@ public class RecipeDescriptionFragment extends Fragment {
         ((RecipeMainActivity) getActivity()).getSupportActionBar().setTitle(recipeActionBarTitle);
         ((RecipeMainActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+
+
+        //Dictionary for ingredients measures
+        HashMap recipeDictionary = new HashMap();
+
+        recipeDictionary.put("CUP", "cup(s)");
+        recipeDictionary.put("TBLSP", "tablespoon");
+        recipeDictionary.put("TSP", "teaspoon");
+        recipeDictionary.put("K", "kilogram(s)");
+        recipeDictionary.put("G", "gram(s)");
+        recipeDictionary.put("OZ", "ounce(s)");
+        recipeDictionary.put("UNIT", "unit(s)");
+
+
         //Getting Ingredients list to a TextView
         listOfIngredients = "";
         for(Ingredient ingredients: mRecipeIngredients){
             if(!ingredients.getIngredient().isEmpty()){
-                listOfIngredients += ingredients.getQuantity().toString() + " " + ingredients.getMeasure() + " of " +ingredients.getIngredient() + "\n";
+                listOfIngredients += ingredients.getQuantity().toString() + " " + recipeDictionary.get(ingredients.getMeasure()) + " of " +ingredients.getIngredient() + "\n";
                 //Log.d("Ingredients list", "onViewCreated: "+ listOfIngredients);
             }
         }
@@ -105,6 +121,12 @@ public class RecipeDescriptionFragment extends Fragment {
 
         mRecyclerViewSteps.setAdapter(mRecipeDescriptionAdapter);
 
+        //keep Actual state
+        if(fragmentInstatiated){
+            emptyRecipeDescription.setVisibility(View.GONE);
+        }
+
+
         //For every click create a bundle
         ItemClickSupport.addTo(mRecyclerViewSteps).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
             @Override
@@ -123,14 +145,19 @@ public class RecipeDescriptionFragment extends Fragment {
 
                 transaction.setCustomAnimations(R.animator.trans_left_in, R.animator.trans_left_out, R.animator.trans_left_in, R.animator.trans_left_out);
 
-                boolean tabletSize = getResources().getBoolean(R.bool.is_tablet);
+                tabletSize = getResources().getBoolean(R.bool.is_tablet);
 
                 if(tabletSize){
+
+                    emptyRecipeDescription.setVisibility(View.GONE);
+
                     transaction.replace(R.id.tablet_step_details, stepDetailsFragment);
                     transaction.addToBackStack("details");
 
                     // Commit the transaction
                     transaction.commit();
+
+                    fragmentInstatiated = true;
 
                 }else {
                     transaction.replace(R.id.recipe_main_fragment, stepDetailsFragment);
@@ -141,6 +168,7 @@ public class RecipeDescriptionFragment extends Fragment {
                 }
             }
         });
+            setRetainInstance(true);
     }
 
     /**

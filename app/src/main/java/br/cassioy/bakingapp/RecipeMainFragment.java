@@ -1,5 +1,7 @@
 package br.cassioy.bakingapp;
 
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -11,10 +13,11 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -33,26 +36,33 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static android.content.Context.CONNECTIVITY_SERVICE;
+import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
+import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
+
 /**
  * A simple {@link Fragment} subclass.
  */
 public class RecipeMainFragment extends Fragment {
 
     private RecipeAdapter mRecipeAdapter;
-    private ArrayList<Recipe> mRecipeList = new ArrayList<>();
+    private ArrayList<Recipe> mRecipeList;
+
     private static final String BASE_URL = "https://d17h27t6h515a5.cloudfront.net/topher/";
+    private static final String RECIPE_LIST = "recipeList";
+
     private String standardActionBarTitle;
+    private List<Ingredient> ingredients;
+    private List<Ingredient.Step> recipeStep;
+    private String recipeName;
 
     @BindView(R.id.recycler_view_main) RecyclerView mRecyclerView;
+    @BindView(R.id.no_internet_layout) View noInternetLayout;
+    @BindView(R.id.no_internet_textview) TextView noInternetTextView;
+    @BindView(R.id.retry_button) Button noInternetRetryButton;
 
     @Nullable
     private CustomIdlingResource mIdlingResource;
-
-    public RecipeMainFragment(){
-        setRetainInstance( true );
-
-    }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -67,21 +77,51 @@ public class RecipeMainFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_recipe_main, container, false);
     }
 
-
-
     // This event is triggered soon after onCreateView().
     // Any view setup should occur here.  E.g., view lookups and attaching view listeners.
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         ButterKnife.bind(this, view);
 
-        mRecipeAdapter = new RecipeAdapter(mRecipeList);
+        if(savedInstanceState != null) {
+            mRecipeList = savedInstanceState.getParcelableArrayList(RECIPE_LIST);
+            mRecipeAdapter = new RecipeAdapter(mRecipeList);
+            mRecyclerView.setAdapter(mRecipeAdapter);
+        }
 
         boolean tabletSize = getResources().getBoolean(R.bool.is_tablet);
 
+        if(savedInstanceState == null){
+
+            RecipeService recipeService = new Retrofit.Builder()
+                    .baseUrl(BASE_URL)
+                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build().create(RecipeService.class);
+
+            //Log.d("RX CALL LOOKUP", "onViewCreated: " + recipeService.toString());
+
+            recipeService.register().observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe(this::handleResponse,this::handleError);
+        }
+
         //Check if it's Tablet or Phone layout
         if (tabletSize) {
-            RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getContext().getApplicationContext(), 3);
+            int n = 1;
+            int orientation = getResources().getConfiguration().orientation;
+
+            switch (orientation){
+                case ORIENTATION_LANDSCAPE: n = 3;
+                break;
+
+                case ORIENTATION_PORTRAIT: n = 2;
+                break;
+
+                default: break;
+            }
+
+            RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getContext().getApplicationContext(), n);
             mRecyclerView.setLayoutManager(mLayoutManager);
             mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         } else {
@@ -91,24 +131,12 @@ public class RecipeMainFragment extends Fragment {
             mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         }
 
-        RecipeService recipeService = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create())
-                .build().create(RecipeService.class);
-
-        //Log.d("RX CALL LOOKUP", "onViewCreated: " + recipeService.toString());
-
-        recipeService.register().observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(this::handleResponse,this::handleError);
-
         ItemClickSupport.addTo(mRecyclerView).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
             @Override
             public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                List<Ingredient> ingredients = mRecipeList.get(position).getIngredients();
-                List<Ingredient.Step> recipeStep = mRecipeList.get(position).getSteps();
-                String recipeName = mRecipeList.get(position).getName();
+                ingredients = mRecipeList.get(position).getIngredients();
+                recipeStep = mRecipeList.get(position).getSteps();
+                recipeName = mRecipeList.get(position).getName();
 
                 Bundle bundle = new Bundle();
                 bundle.putParcelableArrayList("ingredients", (ArrayList<Ingredient>) ingredients);
@@ -131,18 +159,55 @@ public class RecipeMainFragment extends Fragment {
 
             }
         });
+
+        setRetainInstance( true );
     }
 
     private void handleError(Throwable error) {
-        Toast.makeText(getContext(),"Error "+ error.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-        Log.d("RX ERROR", "handleError: " + error.getLocalizedMessage());
 
+        if(!isInternetOn()){
+            noInternetLayout.setVisibility(View.VISIBLE);
+            noInternetRetryButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    RecipeMainFragment firstFragment = new RecipeMainFragment();
+                    // Add the fragment to the 'fragment_container' FrameLayout
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .add(R.id.recipe_main_fragment, firstFragment).commit();
+                    noInternetLayout.setVisibility(View.GONE);
+                }
+            });
+        }else{
+
+            Toast.makeText(getContext(),"Error "+ error.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void handleResponse(List<Recipe> recipes) {
         mRecipeList = new ArrayList<>(recipes);
         mRecipeAdapter = new RecipeAdapter(mRecipeList);
         mRecyclerView.setAdapter(mRecipeAdapter);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        // Save the user's current game state
+        savedInstanceState.putParcelableArrayList(RECIPE_LIST, mRecipeList);
+        // Always call the superclass so it can save the view hierarchy state
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    public final boolean isInternetOn() {
+
+        // get Connectivity Manager object to check connection
+        ConnectivityManager connec =
+                (ConnectivityManager) getActivity().getSystemService(CONNECTIVITY_SERVICE );
+
+        NetworkInfo activeNetwork = connec.getActiveNetworkInfo();
+
+        return activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
     }
 
     /**

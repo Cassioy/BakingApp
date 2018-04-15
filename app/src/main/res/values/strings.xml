@@ -8,4 +8,7 @@
     <string name="next_step">Next Step</string>
     <string name="is_tablet">tablet</string>
     <string name="select_step">Please select your recipe details on the side menu</string>
+    <string name="no_video">Sorry, no video available</string>
+    <string name="retry_button">RETRY</string>
+    <string name="no_internet_alert">No Internet Available, please check your Internet connection</string>
 </resources>

@@ -28,6 +28,8 @@
             app:resize_mode="fill"
             android:visibility="visible"/>
 
+
+
     </RelativeLayout>
 
 
@@ -62,7 +64,7 @@
                 android:textSize="8sp"
                 android:text="Your Recipe Progress"
                 android:padding="8dp"
-                android:gravity="center_horizontal"/>
+                android:gravity="center"/>
 
             <ProgressBar
                 android:id="@+id/step_progress"

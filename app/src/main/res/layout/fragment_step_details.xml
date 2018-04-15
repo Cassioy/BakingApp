@@ -6,24 +6,40 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.google.android.exoplayer2.ui.SimpleExoPlayerView
-            android:id="@+id/step_video_view"
+        <RelativeLayout
+            android:id="@+id/relative_layout_video"
             android:layout_width="match_parent"
-            android:layout_weight="3"
             android:layout_height="match_parent"
-            app:resize_mode="fill"
-            android:visibility="visible"/>
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/no_video"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@drawable/nutella_pie"
+                android:layout_centerHorizontal="true"
+                android:visibility="gone"/>
+
+            <com.google.android.exoplayer2.ui.SimpleExoPlayerView
+                android:id="@+id/step_video_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:resize_mode="fill"
+                android:visibility="visible"/>
+
+        </RelativeLayout>
 
         <TextView
             android:id="@+id/step_description_details"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="2"
+            android:layout_weight="1"
             android:layout_margin="15dp"
             android:gravity="center"
             android:textSize="16sp"/>
 
         <LinearLayout
+            android:id="@+id/layout_bottom_navigation"
             android:layout_width="match_parent"
             android:layout_height="72dp"
             android:background="@color/colorWhite"
@@ -50,6 +66,7 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/progress_bar_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="8sp"
@@ -84,7 +101,6 @@
                 android:text="@string/next_step"
                 android:layout_weight="1"
                 style="?android:attr/borderlessButtonStyle"/>
-
 
         </LinearLayout>
 

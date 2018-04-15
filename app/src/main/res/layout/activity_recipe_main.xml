@@ -14,8 +14,8 @@
         android:background="?attr/colorPrimary"
         android:elevation="4dp"
         app:titleTextColor="@color/colorWhite"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+        android:theme="@style/AppTheme"
+        app:popupTheme="@style/AppTheme"/>
 
     <FrameLayout
         android:id="@+id/recipe_main_fragment"

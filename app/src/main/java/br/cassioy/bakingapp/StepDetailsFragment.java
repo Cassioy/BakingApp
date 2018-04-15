@@ -1,6 +1,8 @@
 package br.cassioy.bakingapp;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -9,12 +11,15 @@ import android.support.annotation.VisibleForTesting;
 import android.support.test.espresso.IdlingResource;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -38,6 +43,8 @@ import br.cassioy.bakingapp.model.Ingredient;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static android.content.Context.CONNECTIVITY_SERVICE;
+
 /**
  * Created by cassioimamura on 2/1/18.
  */
@@ -53,13 +60,23 @@ public class StepDetailsFragment extends Fragment {
     private int position;
     private int totalSteps;
     private double progress;
+    private boolean tabletSize;
+    private int screenOrientation;
+
 
     private Uri videoThumbUri;
     private String stepActionBarTitle;
 
+
     @BindView(R.id.step_description_details) TextView stepDetails;
     @BindView(R.id.step_video_view) SimpleExoPlayerView playerView;
     @BindView(R.id.step_progress) ProgressBar stepProgress;
+    @BindView(R.id.relative_layout_video) View relativeLayoutVideo;
+    @BindView(R.id.layout_bottom_navigation) View linearLayoutBottom;
+    @BindView(R.id.progress_bar_title) TextView progressBarTitle;
+
+
+    @BindView(R.id.no_video) ImageView noVideo;
 
     @Nullable
     @BindView(R.id.step_next) Button nextButton;
@@ -103,18 +120,78 @@ public class StepDetailsFragment extends Fragment {
 
         //Remove numbers on recipe details
         String detailsNotFormatted = mRecipeStep.get(position).getDescription();
-        String positionString = Integer.toString(position) + ".";
+
+        //Setting position string to the step number from description
+        String positionString = Integer.toString(mRecipeStep.get(position).getId()) + ".";
         String formattedDetails = detailsNotFormatted.replace(positionString, "");
-
-
         stepDetails.setText(formattedDetails);
 
+        screenOrientation = getResources().getConfiguration().orientation;
+        tabletSize = getResources().getBoolean(R.bool.is_tablet);
+
         if(mRecipeStep.get(position).getVideoURL() != null) {
+
+            if(!isInternetOn()){
+                Toast.makeText(getContext(), "You are not connected to Internet, please check your connection and try again",Toast.LENGTH_LONG);
+            };
+
             videoThumbUri = Uri.parse(mRecipeStep.get(position).getVideoURL());
         }
 
         if(mRecipeStep.get(position).getVideoURL().isEmpty()){
+
             playerView.setVisibility(View.GONE);
+            stepDetails.setVisibility(View.VISIBLE);
+            relativeLayoutVideo.setVisibility(View.GONE);
+
+            if(tabletSize){
+
+                relativeLayoutVideo.setVisibility(View.VISIBLE);
+
+                switch (stepActionBarTitle) {
+                    case "Nutella Pie":
+                        noVideo.setVisibility(View.VISIBLE);
+                        noVideo.setImageResource(R.drawable.nutella_pie);
+                        break;
+
+                    case "Brownies":
+                        noVideo.setVisibility(View.VISIBLE);
+                        noVideo.setImageResource(R.drawable.brownies);
+                        break;
+
+                    case "Yellow Cake":
+                        noVideo.setVisibility(View.VISIBLE);
+                        noVideo.setImageResource(R.drawable.yellowcake);
+                        break;
+
+                    case "Cheesecake":
+                        noVideo.setVisibility(View.VISIBLE);
+                        noVideo.setImageResource(R.drawable.cheesecake);
+                        break;
+
+                    default: break;
+
+                }
+            }
+        }
+
+        if(screenOrientation == 2 && !tabletSize && !mRecipeStep.get(position).getVideoURL().isEmpty()){
+            stepDetails.setVisibility(View.GONE);
+            linearLayoutBottom.setVisibility(View.GONE);
+//              nextButton.setVisibility(View.GONE);
+//              previousButton.setVisibility(View.GONE);
+//              stepProgress.setVisibility(View.GONE);
+//              progressBarTitle.setVisibility(View.GONE);
+
+            View decorView = getActivity().getWindow().getDecorView();
+            // Hide the status bar.
+            int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+            decorView.setSystemUiVisibility(uiOptions);
+            // Remember that you should never show the action bar if the
+            // status bar is hidden, so hide that too if necessary.
+            ActionBar actionBar = ((RecipeMainActivity) getActivity()).getSupportActionBar();
+            actionBar.hide();
+
         }
 
         //Set progress bar
@@ -125,8 +202,7 @@ public class StepDetailsFragment extends Fragment {
         int roundedProgress = (int) Math.round(progress);
         stepProgress.setProgress(roundedProgress);
 
-        boolean tabletSize = getResources().getBoolean(R.bool.is_tablet);
-
+        //Only for phones
         if(!tabletSize){
             //Hiding navigation button when it's not necessary
             if(position == 0){
@@ -135,24 +211,29 @@ public class StepDetailsFragment extends Fragment {
                 nextButton.setVisibility(View.INVISIBLE);
             }
 
-            previousButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    passFragBundle(previousButton, position);
-                }
-            });
+            if(!tabletSize) {
 
-            nextButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    passFragBundle(nextButton, position);
-                }
-            });
+                previousButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        passFragBundle(previousButton, position);
+                    }
+                });
+
+                nextButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        passFragBundle(nextButton, position);
+                    }
+                });
+
+            }
 
         }
     }
 
     private void initializePlayer() {
+
         Context context = getContext();
 
         shouldAutoPlay = true;
@@ -164,22 +245,26 @@ public class StepDetailsFragment extends Fragment {
         trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
         player = ExoPlayerFactory.newSimpleInstance(getContext(), trackSelector);
 
-
         playerView.setPlayer(player);
 
-        mediaDataSourceFactory = new DefaultDataSourceFactory(context, Util.getUserAgent(context, "BakingApp"), (TransferListener<? super DataSource>) bandwidthMeter);
-        MediaSource mediaSource = new ExtractorMediaSource.Factory(
-                mediaDataSourceFactory).createMediaSource(videoThumbUri);
+        mediaDataSourceFactory = new DefaultDataSourceFactory(context, Util
+                .getUserAgent(context, "BakingApp"),
+                (TransferListener<? super DataSource>) bandwidthMeter);
 
+        //Check Internet
+        if(!isInternetOn()){
+            Toast.makeText(getContext(),getResources().getString(R.string.no_internet_alert), Toast.LENGTH_SHORT).show();
+        }
+
+        MediaSource mediaSource = new ExtractorMediaSource
+                .Factory(mediaDataSourceFactory)
+                .createMediaSource(videoThumbUri);
 
         player.prepare(mediaSource);
 
         player.setPlayWhenReady(shouldAutoPlay);
         playerView.requestFocus();
-
     }
-
-
 
     private void releasePlayer() {
         if (player != null) {
@@ -191,6 +276,7 @@ public class StepDetailsFragment extends Fragment {
         }
     }
 
+    //method to pass bundle to previous and next button - only phone navigation
     private void passFragBundle(Button button, int position){
 
         if(button == previousButton && position > 0){
@@ -258,9 +344,20 @@ public class StepDetailsFragment extends Fragment {
         if (Util.SDK_INT <= 23) {
             releasePlayer();
         }
-
-
     }
+
+    public final boolean isInternetOn() {
+
+        // get Connectivity Manager object to check connection
+        ConnectivityManager connec =
+                (ConnectivityManager) getActivity().getSystemService(CONNECTIVITY_SERVICE );
+
+        NetworkInfo activeNetwork = connec.getActiveNetworkInfo();
+
+        return activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+    }
+
 
     /**
      * Only called from test, creates and returns a new {@link CustomIdlingResource}.

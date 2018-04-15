@@ -5,11 +5,17 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@android:color/holo_red_light</item>
         <item name="colorPrimaryDark">@android:color/holo_red_dark</item>
-        <item name="colorAccent">?android:attr/colorMultiSelectHighlight</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorControlNormal">@color/colorWhite</item>
+
     </style>
 
     <style name="SplashTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowBackground">@drawable/background_splash</item>
+    </style>
+
+    <style name="AppTheme2" parent="Theme.AppCompat.NoActionBar" >
+        <item name="colorPrimary">@color/primary_material_dark_1</item>
     </style>
 
 

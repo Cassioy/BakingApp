@@ -20,6 +20,7 @@ public class RecipeMainActivity extends AppCompatActivity {
 
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,8 +32,6 @@ public class RecipeMainActivity extends AppCompatActivity {
         ActionBar a = getSupportActionBar();
 
         a.setDisplayHomeAsUpEnabled(false);
-
-
 
         // Check that the activity is using the layout version with
         // the fragment_container FrameLayout
