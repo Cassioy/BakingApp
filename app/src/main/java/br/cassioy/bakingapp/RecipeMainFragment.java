@@ -104,6 +104,7 @@ public class RecipeMainFragment extends Fragment {
             recipeService.register().observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe(this::handleResponse,this::handleError);
+
         }
 
         //Check if it's Tablet or Phone layout

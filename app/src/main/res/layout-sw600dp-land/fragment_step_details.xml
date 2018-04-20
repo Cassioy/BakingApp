@@ -37,14 +37,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:layout_margin="15dp"
+        android:layout_margin="@dimen/step_description_details_textview_margin"
         android:gravity="center"
-        android:textSize="16sp"/>
+        android:textSize="@dimen/step_description_details_text"/>
 
     <LinearLayout
         android:id="@+id/layout_bottom_navigation"
         android:layout_width="match_parent"
-        android:layout_height="72dp"
+        android:layout_height="@dimen/step_details_bottom_nav_height"
         android:background="@color/colorWhite"
         android:orientation="horizontal">
 
@@ -59,18 +59,18 @@
                 android:id="@+id/progress_bar_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="8sp"
+                android:textSize="@dimen/step_details_bottom_nav_text"
                 android:text="Your Recipe Progress"
-                android:padding="8dp"
+                android:padding="@dimen/step_details_bottom_nav_padding"
                 android:gravity="center_horizontal"/>
 
             <ProgressBar
                 android:id="@+id/step_progress"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
-                android:layout_height="20dp"
+                android:layout_height="@dimen/step_details_progress_bar"
                 android:layout_gravity="center"
-                android:padding="8dp"
+                android:padding="@dimen/step_details_bottom_nav_padding"
                 android:progressDrawable="@drawable/gradient_progress"
                 android:secondaryProgressTint="@color/textDarkSecondary" />
 

@@ -15,14 +15,14 @@
     android:layout_height="wrap_content"
     android:layout_gravity="bottom"
     android:layoutDirection="ltr"
-    android:background="#CC000000"
+    android:background="@color/exo_playback_layout"
     android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:paddingTop="4dp"
+        android:paddingTop="@dimen/exo_player_padding_margin_std"
         android:orientation="horizontal">
 
         <!--<ImageButton android:id="@id/exo_prev"-->
@@ -54,33 +54,33 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="@dimen/exo_player_padding_margin_std"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
         <TextView android:id="@id/exo_position"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
+            android:textSize="@dimen/exo_playback_control_text"
             android:textStyle="bold"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
+            android:paddingLeft="@dimen/exo_player_padding_margin_std"
+            android:paddingRight="@dimen/exo_player_padding_margin_std"
             android:includeFontPadding="false"
             android:textColor="#FFBEBEBE"/>
 
         <com.google.android.exoplayer2.ui.DefaultTimeBar
             android:id="@id/exo_progress"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/default_time_bar_exo_width"
             android:layout_weight="1"
-            android:layout_height="26dp"/>
+            android:layout_height="@dimen/default_time_bar_exo_height"/>
 
         <TextView android:id="@id/exo_duration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
+            android:textSize="@dimen/exo_playback_control_text"
             android:textStyle="bold"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
+            android:paddingLeft="@dimen/exo_player_padding_margin_std"
+            android:paddingRight="@dimen/exo_player_padding_margin_std"
             android:includeFontPadding="false"
             android:textColor="#FFBEBEBE"/>
 

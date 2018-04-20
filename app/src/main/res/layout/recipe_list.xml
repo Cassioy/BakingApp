@@ -4,10 +4,10 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="5dp"
-    android:layout_marginLeft="5dp"
-    android:layout_marginRight="5dp"
-    card_view:cardCornerRadius="5dp">
+    android:layout_marginTop="@dimen/cardview_margin"
+    android:layout_marginLeft="@dimen/cardview_margin"
+    android:layout_marginRight="@dimen/cardview_margin"
+    card_view:cardCornerRadius="@dimen/cardview_corner_radius">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -28,14 +28,14 @@
             android:layout_alignBottom="@+id/recipe_card_image"
             android:layout_alignParentStart="true"
             android:alpha="0.7"
-            android:background="#000000"
-            android:paddingBottom="16dp"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:paddingTop="24dp"
+            android:background="@color/black"
+            android:paddingBottom="@dimen/recipe_list_padding"
+            android:paddingLeft="@dimen/recipe_list_padding"
+            android:paddingRight="@dimen/recipe_list_padding"
+            android:paddingTop="@dimen/recipe_list_padding_top"
             android:text="NUTELLA PIE"
             android:textColor="@color/colorWhite"
-            android:textSize="20sp"
+            android:textSize="@dimen/recipe_list_text"
             android:textStyle="bold" />
 
     </RelativeLayout>

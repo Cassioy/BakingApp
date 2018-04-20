@@ -39,6 +39,7 @@ public class ExoplayerTest {
         IdlingRegistry.getInstance().register(mIdlingResource);
     }
 
+    //Testing interactions with Recyclerview check if video is displayed and check if next button is working
     @Test
     public void checkVideo() throws Exception {
 

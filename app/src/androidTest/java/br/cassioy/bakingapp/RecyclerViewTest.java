@@ -37,8 +37,6 @@ public class RecyclerViewTest {
     @Before
     public void registerIdlingResource(){
         mIdlingResource = mActivityRule.getActivity().getIdlingResource();
-        // To prove that the test fails, omit this call:
-
         IdlingRegistry.getInstance().register(mIdlingResource);
     }
 

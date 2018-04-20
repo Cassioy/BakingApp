@@ -21,17 +21,17 @@
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
-                card_view:cardCornerRadius="5dp">
+                android:layout_marginTop="@dimen/cardview_margin"
+                android:layout_marginLeft="@dimen/cardview_margin"
+                android:layout_marginRight="@dimen/cardview_margin"
+                card_view:cardCornerRadius="@dimen/cardview_corner_radius">
 
                 <LinearLayout
                     android:id="@+id/ingredient_list_view"
                     android:animateLayoutChanges="true"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
+                    android:layout_margin="@dimen/margin_size_normal"
                     android:orientation="vertical">
 
                     <LinearLayout
@@ -65,7 +65,7 @@
                         android:layout_height="wrap_content"
                         android:visibility="gone"
                         android:textSize="@dimen/recycler_list_text_normal"
-                        android:layout_margin="10dp" />
+                        android:layout_margin="@dimen/margin_size_normal" />
 
                 </LinearLayout>
 
@@ -92,7 +92,7 @@
          android:id="@+id/empty_recipe_details"
          android:layout_width="match_parent"
          android:layout_height="match_parent"
-         android:textSize="36sp"
+         android:textSize="@dimen/empty_recipe_details_text"
          android:text="@string/select_step"
          android:gravity="center"/>
 
