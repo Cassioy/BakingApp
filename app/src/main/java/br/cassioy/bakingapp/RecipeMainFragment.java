@@ -93,18 +93,17 @@ public class RecipeMainFragment extends Fragment {
 
         if(savedInstanceState == null){
 
+            //Asynchronous request Rx
             RecipeService recipeService = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                     .addConverterFactory(GsonConverterFactory.create())
                     .build().create(RecipeService.class);
 
-            //Log.d("RX CALL LOOKUP", "onViewCreated: " + recipeService.toString());
 
             recipeService.register().observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe(this::handleResponse,this::handleError);
-
         }
 
         //Check if it's Tablet or Phone layout

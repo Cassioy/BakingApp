@@ -10,15 +10,23 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import br.cassioy.bakingapp.idlingresource.CustomIdlingResource;
+import br.cassioy.bakingapp.model.Ingredient;
+import br.cassioy.bakingapp.model.Recipe;
 
 public class RecipeMainActivity extends AppCompatActivity {
 
     @Nullable
     private CustomIdlingResource mIdlingResource;
 
+    public static final String RECIPE_KEY = "br.cassioy.bakingapp.extra.RECIPE_KEY";
+    public static final String RECIPE_DATA = "br.cassioy.bakingapp.extra.RECIPE_DATA";
 
-
+    private ArrayList<Recipe> mRecipeData;
+    private int mRecipeKey;
 
 
     @Override
@@ -33,6 +41,9 @@ public class RecipeMainActivity extends AppCompatActivity {
 
         a.setDisplayHomeAsUpEnabled(false);
 
+        mRecipeData = getIntent().getParcelableArrayListExtra(RECIPE_DATA);
+        mRecipeKey = getIntent().getIntExtra(RECIPE_KEY, -1);
+
         // Check that the activity is using the layout version with
         // the fragment_container FrameLayout
         if (findViewById(R.id.recipe_main_fragment) != null) {
@@ -44,13 +55,34 @@ public class RecipeMainActivity extends AppCompatActivity {
                 return;
             }
 
-            // Create a new Fragment to be placed in the activity layout
-            RecipeMainFragment firstFragment = new RecipeMainFragment();
+            //Check if pendingIntent data is valid
+            if(mRecipeData != null && mRecipeKey != -1){
+
+                List<Ingredient> ingredients = mRecipeData.get(mRecipeKey).getIngredients();
+                List<Ingredient.Step> recipeStep = mRecipeData.get(mRecipeKey).getSteps();
+                String recipeName = mRecipeData.get(mRecipeKey).getName();
+
+                Bundle bundle = new Bundle();
+                bundle.putParcelableArrayList("ingredients", (ArrayList<Ingredient>) ingredients);
+                bundle.putParcelableArrayList("steps", (ArrayList<Ingredient.Step>) recipeStep);
+                bundle.putString("recipe name", recipeName);
+
+                RecipeDescriptionFragment frag = new RecipeDescriptionFragment();
+                frag.setArguments(bundle);
+
+                getSupportFragmentManager().beginTransaction().addToBackStack("description")
+                        .replace(R.id.recipe_main_fragment, frag).commit();
+
+            }else {
+
+                // Create a new Fragment to be placed in the activity layout
+                RecipeMainFragment firstFragment = new RecipeMainFragment();
 
 
-            // Add the fragment to the 'fragment_container' FrameLayout
-            getSupportFragmentManager().beginTransaction().addToBackStack("home")
-                    .add(R.id.recipe_main_fragment, firstFragment).commit();
+                // Add the fragment to the 'fragment_container' FrameLayout
+                getSupportFragmentManager().beginTransaction().addToBackStack("home")
+                        .add(R.id.recipe_main_fragment, firstFragment).commit();
+            }
         }
     }
 
@@ -66,7 +98,10 @@ public class RecipeMainActivity extends AppCompatActivity {
         if(id == android.R.id.home){
 
             if(fragTag.contains("RecipeDescriptionFragment")){
-                getSupportFragmentManager().popBackStack("home", 0);
+
+                RecipeMainFragment firstFragment = new RecipeMainFragment();
+                getSupportFragmentManager().beginTransaction().addToBackStack("home")
+                        .replace(R.id.recipe_main_fragment, firstFragment).commit();
             }
 
             if(fragTag.contains("StepDetailsFragment")){

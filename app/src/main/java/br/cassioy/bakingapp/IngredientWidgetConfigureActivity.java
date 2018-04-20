@@ -22,6 +22,8 @@ import java.util.List;
 import br.cassioy.bakingapp.model.Ingredient;
 import br.cassioy.bakingapp.model.Recipe;
 import br.cassioy.bakingapp.service.RecipeService;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import retrofit2.Retrofit;
@@ -36,19 +38,22 @@ public class IngredientWidgetConfigureActivity extends Activity {
     private static final String PREFS_NAME = "br.cassioy.bakingapp.IngredientWidget";
     private static final String PREF_PREFIX_KEY = "appwidget_";
     private static final String PREF_ID_PREFIX_KEY = "appwidget_id_";
-    private ArrayList<Recipe> mRecipeList;
+
+    private static final String RECIPE_KEY = "recipes";
+
+    public  static ArrayList<Recipe> mRecipeList;
     private static final String BASE_URL = "https://d17h27t6h515a5.cloudfront.net/topher/";
     private ArrayList<String> mRecipeNameWidget = new ArrayList<>();
-    private Spinner spinner;
-    private Button addButton;
-    private RelativeLayout noInternetWidgetLayout;
+
+
+    @BindView(R.id.appwidget_spinner_config) Spinner spinner;
+    @BindView(R.id.add_button) Button addButton;
+    @BindView(R.id.no_internet_layout_widget) RelativeLayout noInternetWidgetLayout;
 
     public HashMap recipeDictionary = new HashMap();
 
     public String widgetText;
     public int widgetId;
-
-
 
     int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
 
@@ -59,19 +64,19 @@ public class IngredientWidgetConfigureActivity extends Activity {
             // When the button is clicked, store the string and index locally
             switch (spinner.getSelectedItemPosition()){
                 case 0: widgetText = getIngredientsList(0);
-                        widgetId = 1;
+                        widgetId = 0;
                 break;
 
                 case 1: widgetText = getIngredientsList(1);
-                        widgetId = 2;
+                        widgetId = 1;
                 break;
 
                 case 2: widgetText = getIngredientsList(2);
-                        widgetId = 3;
+                        widgetId = 2;
                 break;
 
                 case 3: widgetText = getIngredientsList(3);
-                        widgetId =4;
+                        widgetId =3;
                 break;
 
             }
@@ -82,7 +87,7 @@ public class IngredientWidgetConfigureActivity extends Activity {
 
             // It is the responsibility of the configuration activity to update the app widget
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-            IngredientWidget.updateAppWidget(context, appWidgetManager, mAppWidgetId);
+            IngredientWidget.updateAppWidget(context, appWidgetManager, mRecipeList, mAppWidgetId);
 
             // Make sure we pass back the original appWidgetId
             Intent resultValue = new Intent();
@@ -100,7 +105,6 @@ public class IngredientWidgetConfigureActivity extends Activity {
     static void saveTitlePref(Context context, int appWidgetId, String text) {
         SharedPreferences.Editor prefs = context.getSharedPreferences(PREFS_NAME, 0).edit();
         prefs.putString(PREF_PREFIX_KEY + appWidgetId, text);
-
         prefs.apply();
     }
 
@@ -165,6 +169,8 @@ public class IngredientWidgetConfigureActivity extends Activity {
                 .subscribe(this::handleResponse,this::handleError);
 
         setContentView(R.layout.ingredient_widget_configure);
+        ButterKnife.bind(this);
+
 
         // Find the widget id from the intent.
         Intent intent = getIntent();
@@ -198,7 +204,6 @@ public class IngredientWidgetConfigureActivity extends Activity {
 
     private void handleResponse(List<Recipe> recipes) {
 
-        noInternetWidgetLayout = (RelativeLayout) findViewById(R.id.no_internet_layout_widget);
         noInternetWidgetLayout.setVisibility(View.GONE);
 
         mRecipeList = new ArrayList<>(recipes);
@@ -207,9 +212,6 @@ public class IngredientWidgetConfigureActivity extends Activity {
                 mRecipeNameWidget.add(recipe.getName());
             }
             ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,mRecipeNameWidget);
-
-        spinner = (Spinner)findViewById(R.id.appwidget_spinner_config);
-        addButton = (Button)findViewById(R.id.add_button);
 
         spinner.setAdapter(adapter);
         addButton.setOnClickListener(mOnClickListener);
@@ -245,6 +247,15 @@ public class IngredientWidgetConfigureActivity extends Activity {
         }
 
         return listOfIngredients;
+    }
+
+    public static ArrayList<Recipe> getRecipeArray(){
+        if(mRecipeList != null) {
+            ArrayList<Recipe> recipes = mRecipeList;
+            return recipes;
+        }else{
+            return null;
+        }
     }
 
 }
