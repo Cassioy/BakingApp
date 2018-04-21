@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -49,6 +50,7 @@ public class IngredientWidgetConfigureActivity extends Activity {
     @BindView(R.id.appwidget_spinner_config) Spinner spinner;
     @BindView(R.id.add_button) Button addButton;
     @BindView(R.id.no_internet_layout_widget) RelativeLayout noInternetWidgetLayout;
+    @BindView(R.id.no_internet_textview) TextView alertOnError;
 
     public HashMap recipeDictionary = new HashMap();
 
@@ -170,7 +172,7 @@ public class IngredientWidgetConfigureActivity extends Activity {
 
         setContentView(R.layout.ingredient_widget_configure);
         ButterKnife.bind(this);
-
+        alertOnError.setText(R.string.finding_recipe);
 
         // Find the widget id from the intent.
         Intent intent = getIntent();
@@ -194,11 +196,13 @@ public class IngredientWidgetConfigureActivity extends Activity {
 
         if(!isInternetOn()){
             Toast.makeText(this,getResources().getString(R.string.no_internet_alert), Toast.LENGTH_SHORT).show();
-            noInternetWidgetLayout = (RelativeLayout) findViewById(R.id.no_internet_layout_widget);
             noInternetWidgetLayout.setVisibility(View.VISIBLE);
-        }else{
+            alertOnError.setText(getResources().getString(R.string.no_internet_alert));
 
-            Toast.makeText(this,"Error "+ error.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+        }else{
+            Toast.makeText(this,"Sorry, it was not possible to get your recipes, try again later", Toast.LENGTH_SHORT).show();
+            noInternetWidgetLayout.setVisibility(View.VISIBLE);
+            alertOnError.setText(getResources().getString(R.string.error_no_recipe));
         }
     }
 

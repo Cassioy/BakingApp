@@ -60,6 +60,8 @@ public class RecipeMainFragment extends Fragment {
     @BindView(R.id.no_internet_layout) View noInternetLayout;
     @BindView(R.id.no_internet_textview) TextView noInternetTextView;
     @BindView(R.id.retry_button) Button noInternetRetryButton;
+    @BindView(R.id.progress_layout) View progressBarLayout;
+
 
     @Nullable
     private CustomIdlingResource mIdlingResource;
@@ -84,6 +86,7 @@ public class RecipeMainFragment extends Fragment {
         ButterKnife.bind(this, view);
 
         if(savedInstanceState != null) {
+            progressBarLayout.setVisibility(View.GONE);
             mRecipeList = savedInstanceState.getParcelableArrayList(RECIPE_LIST);
             mRecipeAdapter = new RecipeAdapter(mRecipeList);
             mRecyclerView.setAdapter(mRecipeAdapter);
@@ -124,6 +127,7 @@ public class RecipeMainFragment extends Fragment {
             RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getContext().getApplicationContext(), n);
             mRecyclerView.setLayoutManager(mLayoutManager);
             mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
         } else {
             // do something else
             RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext().getApplicationContext());
@@ -166,10 +170,14 @@ public class RecipeMainFragment extends Fragment {
     private void handleError(Throwable error) {
 
         if(!isInternetOn()){
+
+            progressBarLayout.setVisibility(View.GONE);
             noInternetLayout.setVisibility(View.VISIBLE);
+
             noInternetRetryButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+
 
                     RecipeMainFragment firstFragment = new RecipeMainFragment();
                     // Add the fragment to the 'fragment_container' FrameLayout
@@ -180,11 +188,16 @@ public class RecipeMainFragment extends Fragment {
             });
         }else{
 
-            Toast.makeText(getContext(),"Error "+ error.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            progressBarLayout.setVisibility(View.GONE);
+            noInternetLayout.setVisibility(View.VISIBLE);
+
+            Toast.makeText(getContext(),getResources().getString(R.string.error_no_recipe), Toast.LENGTH_SHORT).show();
         }
     }
 
     private void handleResponse(List<Recipe> recipes) {
+
+        progressBarLayout.setVisibility(View.GONE);
         mRecipeList = new ArrayList<>(recipes);
         mRecipeAdapter = new RecipeAdapter(mRecipeList);
         mRecyclerView.setAdapter(mRecipeAdapter);

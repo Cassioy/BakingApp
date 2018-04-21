@@ -43,6 +43,9 @@ public class ExoplayerTest {
     @Test
     public void checkVideo() throws Exception {
 
+        //Some old devices takes longer to make asynchronous request, setting up a minimum wait time
+        Thread.sleep(1000);
+
         mIdlingResource = mActivityRule.getActivity().getIdlingResource();
         IdlingRegistry.getInstance().register(mIdlingResource);
         //Click on 1st item recycler view main menu
@@ -63,10 +66,15 @@ public class ExoplayerTest {
         onView(ViewMatchers.withId(R.id.step_video_view)).check(matches(isDisplayed()));
         IdlingRegistry.getInstance().unregister(mIdlingResource);
 
-        mIdlingResource = mActivityRule.getActivity().getIdlingResource();
-        IdlingRegistry.getInstance().register(mIdlingResource);
-        onView(ViewMatchers.withId(R.id.step_next)).perform(click());
-        IdlingRegistry.getInstance().unregister(mIdlingResource);
+        //Tablet versions don't have next button
+        boolean tabletSize = mActivityRule.getActivity().getResources().getBoolean(R.bool.is_tablet);
+        if(!tabletSize) {
+
+            mIdlingResource = mActivityRule.getActivity().getIdlingResource();
+            IdlingRegistry.getInstance().register(mIdlingResource);
+            onView(ViewMatchers.withId(R.id.step_next)).perform(click());
+            IdlingRegistry.getInstance().unregister(mIdlingResource);
+        }
     }
 
     @After

@@ -11,6 +11,8 @@
     <string name="no_video">Sorry, no video available</string>
     <string name="retry_button">RETRY</string>
     <string name="no_internet_alert">No Internet Available, please check your Internet connection</string>
+    <string name="finding_recipe">We are searching your available Recipes, please wait</string>
+    <string name="error_no_recipe">Sorry, it was not possible to get your recipes, try again later</string>
     <string name="appwidget_text">Ingredients List</string>
     <string name="configure">Choose your Recipe</string>
     <string name="add_widget">Add widget</string>

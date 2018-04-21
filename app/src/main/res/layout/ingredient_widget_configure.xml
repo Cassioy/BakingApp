@@ -40,7 +40,7 @@
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:gravity="center"
-            android:text="@string/no_internet_alert"
+            android:text="@string/finding_recipe"
             android:textSize="@dimen/recycler_list_text_normal" />
 
     </RelativeLayout>

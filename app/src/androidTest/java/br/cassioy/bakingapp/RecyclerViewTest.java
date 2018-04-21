@@ -40,16 +40,30 @@ public class RecyclerViewTest {
         IdlingRegistry.getInstance().register(mIdlingResource);
     }
 
+    //Test only works if you have internet
     @Test
     public void clickRecyclerViewItem() throws Exception {
 
+        mIdlingResource = mActivityRule.getActivity().getIdlingResource();
+        IdlingRegistry.getInstance().register(mIdlingResource);
+        onView(ViewMatchers.withId(R.id.no_internet_layout)).check(matches(ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        IdlingRegistry.getInstance().unregister(mIdlingResource);
+
+
+        //Some old devices takes longer to make asynchronous request, setting up a minimum wait time
+        Thread.sleep(1000);
+
         //Click on 1st item recycler view main menu and check if has a string "Recipe Introduction" on first item of the steps recyclerView
-        onView(ViewMatchers.withId(R.id.recycler_view_main))
-                .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
+        mIdlingResource = mActivityRule.getActivity().getIdlingResource();
+        IdlingRegistry.getInstance().register(mIdlingResource);
+            onView(ViewMatchers.withId(R.id.recycler_view_main))
+                    .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
+            IdlingRegistry.getInstance().unregister(mIdlingResource);
 
-        String checkHasRecyclerView = mActivityRule.getActivity().getResources().getString(R.string.recycler_view_testing);
+            String checkHasRecyclerView = mActivityRule.getActivity().getResources().getString(R.string.recycler_view_testing);
 
-        onView(withText(checkHasRecyclerView)).check(matches(isDisplayed()));
+            onView(withText(checkHasRecyclerView)).check(matches(isDisplayed()));
+
     }
 
     @After
