@@ -23,6 +23,7 @@ import java.util.List;
 import br.cassioy.bakingapp.model.Ingredient;
 import br.cassioy.bakingapp.model.Recipe;
 import br.cassioy.bakingapp.service.RecipeService;
+import br.cassioy.bakingapp.utils.DictionaryUtils;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -39,18 +40,15 @@ public class IngredientWidgetConfigureActivity extends Activity {
     private static final String PREFS_NAME = "br.cassioy.bakingapp.IngredientWidget";
     private static final String PREF_PREFIX_KEY = "appwidget_";
     private static final String PREF_ID_PREFIX_KEY = "appwidget_id_";
-
-    private static final String RECIPE_KEY = "recipes";
-
-    public  static ArrayList<Recipe> mRecipeList;
     private static final String BASE_URL = "https://d17h27t6h515a5.cloudfront.net/topher/";
-    private ArrayList<String> mRecipeNameWidget = new ArrayList<>();
 
+    public static ArrayList<Recipe> mRecipeList;
+    private ArrayList<String> mRecipeNameWidget = new ArrayList<>();
 
     @BindView(R.id.appwidget_spinner_config) Spinner spinner;
     @BindView(R.id.add_button) Button addButton;
     @BindView(R.id.no_internet_layout_widget) RelativeLayout noInternetWidgetLayout;
-    @BindView(R.id.no_internet_textview) TextView alertOnError;
+    @BindView(R.id.no_internet_textview_widget) TextView alertOnError;
 
     public HashMap recipeDictionary = new HashMap();
 
@@ -58,6 +56,7 @@ public class IngredientWidgetConfigureActivity extends Activity {
     public int widgetId;
 
     int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
+
 
     View.OnClickListener mOnClickListener = new View.OnClickListener() {
         public void onClick(View v) {
@@ -149,14 +148,9 @@ public class IngredientWidgetConfigureActivity extends Activity {
         // out of the widget placement if the user presses the back button.
         setResult(RESULT_CANCELED);
 
+        //reference to measure and Abbreviations in String.xml
+        recipeDictionary = DictionaryUtils.parseStringArray(this, R.array.recipe_measures_array);
 
-        recipeDictionary.put("CUP", "cup(s)");
-        recipeDictionary.put("TBLSP", "tablespoon");
-        recipeDictionary.put("TSP", "teaspoon");
-        recipeDictionary.put("K", "kilogram(s)");
-        recipeDictionary.put("G", "gram(s)");
-        recipeDictionary.put("OZ", "ounce(s)");
-        recipeDictionary.put("UNIT", "unit(s)");
 
         RecipeService recipeService = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
@@ -172,7 +166,9 @@ public class IngredientWidgetConfigureActivity extends Activity {
 
         setContentView(R.layout.ingredient_widget_configure);
         ButterKnife.bind(this);
+
         alertOnError.setText(R.string.finding_recipe);
+
 
         // Find the widget id from the intent.
         Intent intent = getIntent();
@@ -200,7 +196,7 @@ public class IngredientWidgetConfigureActivity extends Activity {
             alertOnError.setText(getResources().getString(R.string.no_internet_alert));
 
         }else{
-            Toast.makeText(this,"Sorry, it was not possible to get your recipes, try again later", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getResources().getString(R.string.error_no_recipe), Toast.LENGTH_SHORT).show();
             noInternetWidgetLayout.setVisibility(View.VISIBLE);
             alertOnError.setText(getResources().getString(R.string.error_no_recipe));
         }

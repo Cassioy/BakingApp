@@ -14,7 +14,7 @@
         android:layout_weight="1">
 
         <ImageView
-            android:id="@+id/no_video"
+            android:id="@+id/thumbnail_image_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:src="@drawable/nutella_pie"
@@ -36,7 +36,7 @@
         android:id="@+id/step_description_details"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
+        android:layout_weight="2"
         android:layout_margin="@dimen/step_description_details_textview_margin"
         android:gravity="center"
         android:textSize="@dimen/step_description_details_text"/>
@@ -52,7 +52,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:layout_weight="2"
             android:orientation="vertical">
 
             <TextView

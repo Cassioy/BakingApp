@@ -50,6 +50,13 @@ public class RecipeMainFragment extends Fragment {
 
     private static final String BASE_URL = "https://d17h27t6h515a5.cloudfront.net/topher/";
     private static final String RECIPE_LIST = "recipeList";
+    private static final String BUNDLE_INGREDIENTS = "br.cassioy.bakingapp.bundle_ingredients";
+    private static final String BUNDLE_STEP = "br.cassioy.bakingapp.bundle_step";
+    private static final String BUNDLE_NAME = "br.cassioy.bakingapp.bundle_name";
+    private static final String BACKSTACK_STEP_DESCRIPTION = "br.cassioy.bakingapp.backstack_description";
+
+
+
 
     private String standardActionBarTitle;
     private List<Ingredient> ingredients;
@@ -143,9 +150,9 @@ public class RecipeMainFragment extends Fragment {
                 recipeName = mRecipeList.get(position).getName();
 
                 Bundle bundle = new Bundle();
-                bundle.putParcelableArrayList("ingredients", (ArrayList<Ingredient>) ingredients);
-                bundle.putParcelableArrayList("steps", (ArrayList<Ingredient.Step>) recipeStep);
-                bundle.putString("recipe name", recipeName);
+                bundle.putParcelableArrayList(BUNDLE_INGREDIENTS, (ArrayList<Ingredient>) ingredients);
+                bundle.putParcelableArrayList(BUNDLE_STEP, (ArrayList<Ingredient.Step>) recipeStep);
+                bundle.putString(BUNDLE_NAME, recipeName);
 
                 RecipeDescriptionFragment frag = new RecipeDescriptionFragment();
                 frag.setArguments(bundle);
@@ -156,7 +163,7 @@ public class RecipeMainFragment extends Fragment {
                 // and add the transaction to the back stack
                 transaction.setCustomAnimations(R.animator.trans_left_in, R.animator.trans_left_out, R.animator.trans_left_in, R.animator.trans_left_out);
                 transaction.replace(R.id.recipe_main_fragment, frag);
-                transaction.addToBackStack("description");
+                transaction.addToBackStack(BACKSTACK_STEP_DESCRIPTION);
 
                 // Commit the transaction
                 transaction.commit();

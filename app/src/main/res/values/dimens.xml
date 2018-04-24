@@ -24,6 +24,7 @@
     <dimen name="widget_padding_top">24dp</dimen>
     <dimen name="widget_padding">16dp</dimen>
     <dimen name="widget_recipe_name_text">20sp</dimen>
+    <dimen name="widget_recipe_name_text_tablet">32sp</dimen>
     <dimen name="widget_list">10sp</dimen>
     <dimen name="widget_margin">5dp</dimen>
     <dimen name="recipe_list_padding_top">24dp</dimen>

@@ -21,7 +21,13 @@
     <string name="brownies">Brownies</string>
     <string name="yellow_cake">Yellow Cake</string>
     <string name="cheesecake">Cheesecake</string>
-
-
-
+    <string-array name="recipe_measures_array">
+        <item>CUP|cup(s)</item>
+        <item>TBLSP|tablespoon</item>
+        <item>TSP|teaspoon</item>
+        <item>K|kilogram(s)</item>
+        <item>G|gram(s)</item>
+        <item>OZ|ounce(s)</item>
+        <item>UNIT|unit(s)</item>
+    </string-array>
 </resources>

@@ -22,6 +22,7 @@ import java.util.HashMap;
 import br.cassioy.bakingapp.idlingresource.CustomIdlingResource;
 import br.cassioy.bakingapp.model.Ingredient;
 import br.cassioy.bakingapp.support.ItemClickSupport;
+import br.cassioy.bakingapp.utils.DictionaryUtils;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -38,6 +39,17 @@ public class RecipeDescriptionFragment extends Fragment {
     private String recipeActionBarTitle;
     private boolean fragmentInstatiated;
     private boolean tabletSize;
+
+    private static final String BUNDLE_INGREDIENTS = "br.cassioy.bakingapp.bundle_ingredients";
+    private static final String BUNDLE_STEP = "br.cassioy.bakingapp.bundle_step";
+    private static final String BUNDLE_NAME = "br.cassioy.bakingapp.bundle_name";
+    private static final String BUNDLE_POSITION = "br.cassioy.bakingapp.bundle_position";
+
+    private static final String BUNDLE_FRAGMENT_INSTANTIATE = "br.cassioy.bakingapp.bundle_fragment_boolean";
+
+
+    private static final String BACKSTACK_STEP_DETAILS = "br.cassioy.bakingapp.backstack_details";
+
 
     @BindView(R.id.recipe_step_ingredients_rv) RecyclerView mRecyclerViewSteps;
     @BindView(R.id.ingredient_cardview) CardView ingredientsCardView;
@@ -61,28 +73,30 @@ public class RecipeDescriptionFragment extends Fragment {
 
         ButterKnife.bind(this, view);
 
-        Bundle bundle = this.getArguments();
-        if (bundle != null) {
-            mRecipeIngredients = bundle.getParcelableArrayList("ingredients");
-            mRecipeStep = bundle.getParcelableArrayList("steps");
-            recipeActionBarTitle = bundle.getString("recipe name");
+        if(savedInstanceState != null) {
+
+            mRecipeStep = savedInstanceState.getParcelableArrayList(BUNDLE_STEP);
+            mRecipeIngredients = savedInstanceState.getParcelableArrayList(BUNDLE_INGREDIENTS);
+            recipeActionBarTitle = savedInstanceState.getString(BUNDLE_NAME);
+            fragmentInstatiated = savedInstanceState.getBoolean(BUNDLE_FRAGMENT_INSTANTIATE);
+
+        }else{
+
+            Bundle bundle = this.getArguments();
+            if (bundle != null) {
+                mRecipeIngredients = bundle.getParcelableArrayList(BUNDLE_INGREDIENTS);
+                mRecipeStep = bundle.getParcelableArrayList(BUNDLE_STEP);
+                recipeActionBarTitle = bundle.getString(BUNDLE_NAME);
+            }
         }
 
         ((RecipeMainActivity) getActivity()).getSupportActionBar().setTitle(recipeActionBarTitle);
         ((RecipeMainActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
-
         //Dictionary for ingredients measures
         HashMap recipeDictionary = new HashMap();
-
-        recipeDictionary.put("CUP", "cup(s)");
-        recipeDictionary.put("TBLSP", "tablespoon");
-        recipeDictionary.put("TSP", "teaspoon");
-        recipeDictionary.put("K", "kilogram(s)");
-        recipeDictionary.put("G", "gram(s)");
-        recipeDictionary.put("OZ", "ounce(s)");
-        recipeDictionary.put("UNIT", "unit(s)");
+        recipeDictionary = DictionaryUtils.parseStringArray(getContext(), R.array.recipe_measures_array);
 
 
         //Getting Ingredients list to a TextView
@@ -94,7 +108,7 @@ public class RecipeDescriptionFragment extends Fragment {
             }
         }
 
-        ingredientsCardTitle.setText("Ingredients List");
+        ingredientsCardTitle.setText(getResources().getString(R.string.appwidget_text));
         recipeIngredients.setText(listOfIngredients);
 
 
@@ -133,10 +147,9 @@ public class RecipeDescriptionFragment extends Fragment {
             public void onItemClicked(RecyclerView recyclerView, int position, View v) {
 
                 Bundle bundleStepDetail = new Bundle();
-                bundleStepDetail.putParcelableArrayList("step", mRecipeStep);
-                //Log.d("Checking Arraylist", "onItemClicked: " + mRecipeStep.get(position));
-                bundleStepDetail.putInt("position", position);
-                bundleStepDetail.putString("recipe name", recipeActionBarTitle);
+                bundleStepDetail.putParcelableArrayList(BUNDLE_STEP, mRecipeStep);
+                bundleStepDetail.putInt(BUNDLE_POSITION, position);
+                bundleStepDetail.putString(BUNDLE_NAME, recipeActionBarTitle);
 
 
                 StepDetailsFragment stepDetailsFragment = new StepDetailsFragment();
@@ -152,7 +165,7 @@ public class RecipeDescriptionFragment extends Fragment {
                     emptyRecipeDescription.setVisibility(View.GONE);
 
                     transaction.replace(R.id.tablet_step_details, stepDetailsFragment);
-                    transaction.addToBackStack("details");
+                    transaction.addToBackStack(BACKSTACK_STEP_DETAILS);
 
                     // Commit the transaction
                     transaction.commit();
@@ -161,14 +174,24 @@ public class RecipeDescriptionFragment extends Fragment {
 
                 }else {
                     transaction.replace(R.id.recipe_main_fragment, stepDetailsFragment);
-                    transaction.addToBackStack("details");
+                    transaction.addToBackStack(BACKSTACK_STEP_DETAILS);
 
                     // Commit the transaction
                     transaction.commit();
                 }
             }
         });
-            setRetainInstance(true);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putParcelableArrayList(BUNDLE_INGREDIENTS, (ArrayList<Ingredient>) mRecipeIngredients);
+        outState.putParcelableArrayList(BUNDLE_STEP, (ArrayList<Ingredient.Step>) mRecipeStep);
+        outState.putString(BUNDLE_NAME, recipeActionBarTitle);
+        outState.putBoolean(BUNDLE_FRAGMENT_INSTANTIATE, fragmentInstatiated);
+
     }
 
     /**

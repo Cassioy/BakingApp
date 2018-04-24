@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Util;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -54,19 +55,26 @@ public class StepDetailsFragment extends Fragment {
     private SimpleExoPlayer player;
     private DataSource.Factory mediaDataSourceFactory;
     private DefaultTrackSelector trackSelector;
-    private boolean shouldAutoPlay;
     private BandwidthMeter bandwidthMeter;
+    private boolean shouldAutoPlay;
+    private long trackPosition;
     private ArrayList<Ingredient.Step> mRecipeStep = new ArrayList<>();
     private int position;
     private int totalSteps;
     private double progress;
     private boolean tabletSize;
     private int screenOrientation;
-
+    private int resId;
 
     private Uri videoThumbUri;
+    private String thumbnailUri;
     private String stepActionBarTitle;
 
+    private static final String BUNDLE_STEP = "br.cassioy.bakingapp.bundle_step";
+    private static final String BUNDLE_NAME = "br.cassioy.bakingapp.bundle_name";
+    private static final String BUNDLE_POSITION = "br.cassioy.bakingapp.bundle_position";
+    private static final String TRACK_POSITION = "Player Track Position";
+    private static final String PLAYSTATE = "Playstate";
 
     @BindView(R.id.step_description_details) TextView stepDetails;
     @BindView(R.id.step_video_view) SimpleExoPlayerView playerView;
@@ -74,9 +82,7 @@ public class StepDetailsFragment extends Fragment {
     @BindView(R.id.relative_layout_video) View relativeLayoutVideo;
     @BindView(R.id.layout_bottom_navigation) View linearLayoutBottom;
     @BindView(R.id.progress_bar_title) TextView progressBarTitle;
-
-
-    @BindView(R.id.no_video) ImageView noVideo;
+    @BindView(R.id.thumbnail_image_view) ImageView noVideo;
 
     @Nullable
     @BindView(R.id.step_next) Button nextButton;
@@ -96,11 +102,25 @@ public class StepDetailsFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 
-        Bundle bundle = this.getArguments();
-        if (bundle != null) {
-            mRecipeStep = bundle.getParcelableArrayList("step");
-            position = bundle.getInt("position");
-            stepActionBarTitle = bundle.getString("recipe name");
+
+        if(savedInstanceState != null) {
+
+            trackPosition = savedInstanceState.getLong(TRACK_POSITION);
+            shouldAutoPlay = savedInstanceState.getBoolean(PLAYSTATE);
+            mRecipeStep = savedInstanceState.getParcelableArrayList(BUNDLE_STEP);
+            position = savedInstanceState.getInt(BUNDLE_POSITION);
+            stepActionBarTitle = savedInstanceState.getString(BUNDLE_NAME);
+
+        }else{
+
+            Bundle bundle = this.getArguments();
+            if (bundle != null) {
+                mRecipeStep = bundle.getParcelableArrayList(BUNDLE_STEP);
+                position = bundle.getInt(BUNDLE_POSITION);
+                stepActionBarTitle = bundle.getString(BUNDLE_NAME);
+            }
+            //set autoplay as true
+            shouldAutoPlay = true;
         }
 
         //Set step number on ActionBar Title
@@ -113,7 +133,6 @@ public class StepDetailsFragment extends Fragment {
             String title = stepActionBarTitle + " - Introduction";
             ((RecipeMainActivity) getActivity()).getSupportActionBar().setTitle(title);
             ((RecipeMainActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
         }
 
         ButterKnife.bind(this,view);
@@ -129,69 +148,70 @@ public class StepDetailsFragment extends Fragment {
         screenOrientation = getResources().getConfiguration().orientation;
         tabletSize = getResources().getBoolean(R.bool.is_tablet);
 
-        if(mRecipeStep.get(position).getVideoURL() != null) {
-
+        //Check if there's a video to show
+        if(!mRecipeStep.get(position).getVideoURL().isEmpty()) {
             if(!isInternetOn()){
-                Toast.makeText(getContext(), "You are not connected to Internet, please check your connection and try again",Toast.LENGTH_LONG);
+                Toast.makeText(getContext(), getResources().getString(R.string.no_internet_alert),Toast.LENGTH_LONG);
             };
 
             videoThumbUri = Uri.parse(mRecipeStep.get(position).getVideoURL());
-        }
 
-        if(mRecipeStep.get(position).getVideoURL().isEmpty()){
+            //phone with landscape mode has different configuration
+            if(screenOrientation == 2 && !tabletSize){
+
+                stepDetails.setVisibility(View.GONE);
+                linearLayoutBottom.setVisibility(View.GONE);
+
+                View decorView = getActivity().getWindow().getDecorView();
+                // Hide the status bar.
+                int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+                decorView.setSystemUiVisibility(uiOptions);
+                // Remember that you should never show the action bar if the
+                // status bar is hidden, so hide that too if necessary.
+                ActionBar actionBar = ((RecipeMainActivity) getActivity()).getSupportActionBar();
+                actionBar.hide();
+            }
+
+        }else {
+
+            //Layout customizations
 
             playerView.setVisibility(View.GONE);
+            relativeLayoutVideo.setVisibility(View.VISIBLE);
             stepDetails.setVisibility(View.VISIBLE);
-            relativeLayoutVideo.setVisibility(View.GONE);
+            noVideo.setVisibility(View.VISIBLE);
 
-            if(tabletSize){
 
-                relativeLayoutVideo.setVisibility(View.VISIBLE);
-
-                switch (stepActionBarTitle) {
-                    case "Nutella Pie":
-                        noVideo.setVisibility(View.VISIBLE);
-                        noVideo.setImageResource(R.drawable.nutella_pie);
-                        break;
-
-                    case "Brownies":
-                        noVideo.setVisibility(View.VISIBLE);
-                        noVideo.setImageResource(R.drawable.brownies);
-                        break;
-
-                    case "Yellow Cake":
-                        noVideo.setVisibility(View.VISIBLE);
-                        noVideo.setImageResource(R.drawable.yellowcake);
-                        break;
-
-                    case "Cheesecake":
-                        noVideo.setVisibility(View.VISIBLE);
-                        noVideo.setImageResource(R.drawable.cheesecake);
-                        break;
-
-                    default: break;
-
-                }
+            //only show thumbnail on portrait mode for phones
+            if(screenOrientation == 2 && !tabletSize){
+                relativeLayoutVideo.setVisibility(View.GONE);
             }
-        }
 
-        if(screenOrientation == 2 && !tabletSize && !mRecipeStep.get(position).getVideoURL().isEmpty()){
-            stepDetails.setVisibility(View.GONE);
-            linearLayoutBottom.setVisibility(View.GONE);
-//              nextButton.setVisibility(View.GONE);
-//              previousButton.setVisibility(View.GONE);
-//              stepProgress.setVisibility(View.GONE);
-//              progressBarTitle.setVisibility(View.GONE);
+            //Setting a mock thumbnail in case no thumbnail is shown
+            switch (stepActionBarTitle) {
+                case "Nutella Pie":
+                    resId = R.drawable.nutella_pie;
+                    break;
 
-            View decorView = getActivity().getWindow().getDecorView();
-            // Hide the status bar.
-            int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
-            decorView.setSystemUiVisibility(uiOptions);
-            // Remember that you should never show the action bar if the
-            // status bar is hidden, so hide that too if necessary.
-            ActionBar actionBar = ((RecipeMainActivity) getActivity()).getSupportActionBar();
-            actionBar.hide();
+                case "Brownies":
+                    resId = R.drawable.brownies;
+                    break;
 
+                case "Yellow Cake":
+                    resId = R.drawable.yellowcake;
+                    break;
+
+                case "Cheesecake":
+                    resId = R.drawable.cheesecake;
+                    break;
+            }
+
+            thumbnailUri = mRecipeStep.get(position).getThumbnailURL();
+
+            Picasso.get().load(thumbnailUri.trim().isEmpty()? null: thumbnailUri)
+                    .error(resId)
+                    .placeholder(resId)
+                    .into(noVideo);
         }
 
         //Set progress bar
@@ -204,7 +224,7 @@ public class StepDetailsFragment extends Fragment {
 
         //Only for phones
         if(!tabletSize){
-            //Hiding navigation button when it's not necessary
+            //Hiding next and back buttons when it's not necessary
             if(position == 0){
                 previousButton.setVisibility(View.INVISIBLE);
             }else if(position == totalSteps){
@@ -235,8 +255,6 @@ public class StepDetailsFragment extends Fragment {
     private void initializePlayer() {
 
         Context context = getContext();
-
-        shouldAutoPlay = true;
         bandwidthMeter = new DefaultBandwidthMeter();
 
         TrackSelection.Factory videoTrackSelectionFactory =
@@ -248,7 +266,7 @@ public class StepDetailsFragment extends Fragment {
         playerView.setPlayer(player);
 
         mediaDataSourceFactory = new DefaultDataSourceFactory(context, Util
-                .getUserAgent(context, "BakingApp"),
+                .getUserAgent(context, getResources().getString(R.string.app_name)),
                 (TransferListener<? super DataSource>) bandwidthMeter);
 
         //Check Internet
@@ -262,7 +280,15 @@ public class StepDetailsFragment extends Fragment {
 
         player.prepare(mediaSource);
 
-        player.setPlayWhenReady(shouldAutoPlay);
+        //
+        if(trackPosition > 0){
+            player.seekTo(trackPosition);
+            player.setPlayWhenReady(shouldAutoPlay);
+
+        }else{
+            player.setPlayWhenReady(shouldAutoPlay);
+        }
+
         playerView.requestFocus();
     }
 
@@ -271,7 +297,6 @@ public class StepDetailsFragment extends Fragment {
             playerView.clearFocus();
             shouldAutoPlay = player.getPlayWhenReady();
             player.release();
-            player = null;
             trackSelector = null;
         }
     }
@@ -288,10 +313,9 @@ public class StepDetailsFragment extends Fragment {
         }
 
         Bundle bundleStepButton = new Bundle();
-        bundleStepButton.putParcelableArrayList("step", mRecipeStep);
-        //Log.d("Checking Arraylist", "onItemClicked: " + mRecipeStep.get(position));
-        bundleStepButton.putInt("position", position);
-        bundleStepButton.putString("recipe name", stepActionBarTitle);
+        bundleStepButton.putParcelableArrayList(BUNDLE_STEP, mRecipeStep);
+        bundleStepButton.putInt(BUNDLE_POSITION, position);
+        bundleStepButton.putString(BUNDLE_NAME, stepActionBarTitle);
 
 
         StepDetailsFragment stepDetailsFragment2 = new StepDetailsFragment();
@@ -358,6 +382,21 @@ public class StepDetailsFragment extends Fragment {
                 activeNetwork.isConnectedOrConnecting();
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putParcelableArrayList(BUNDLE_STEP, mRecipeStep);
+        outState.putInt(BUNDLE_POSITION, position);
+        outState.putString(BUNDLE_NAME, stepActionBarTitle);
+
+        if(player != null) {
+            trackPosition = player.getCurrentPosition();
+            outState.putLong(TRACK_POSITION, trackPosition);
+            boolean isPlayWhenReady = player.getPlayWhenReady();
+            outState.putBoolean(PLAYSTATE, isPlayWhenReady);
+        }
+    }
 
     /**
      * Only called from test, creates and returns a new {@link CustomIdlingResource}.

@@ -24,6 +24,14 @@ public class RecipeMainActivity extends AppCompatActivity {
 
     public static final String RECIPE_KEY = "br.cassioy.bakingapp.extra.RECIPE_KEY";
     public static final String RECIPE_DATA = "br.cassioy.bakingapp.extra.RECIPE_DATA";
+    private static final String BACKSTACK_STEP_HOME = "br.cassioy.bakingapp.backstack_home";
+    private static final String BACKSTACK_STEP_DETAILS = "br.cassioy.bakingapp.backstack_details";
+    private static final String BACKSTACK_STEP_DESCRIPTION = "br.cassioy.bakingapp.backstack_description";
+    private static final String BUNDLE_INGREDIENTS = "br.cassioy.bakingapp.bundle_ingredients";
+    private static final String BUNDLE_STEP = "br.cassioy.bakingapp.bundle_step";
+    private static final String BUNDLE_NAME = "br.cassioy.bakingapp.bundle_name";
+
+
 
     private ArrayList<Recipe> mRecipeData;
     private int mRecipeKey;
@@ -46,7 +54,6 @@ public class RecipeMainActivity extends AppCompatActivity {
 
         // Check that the activity is using the layout version with
         // the fragment_container FrameLayout
-        if (findViewById(R.id.recipe_main_fragment) != null) {
 
             // However, if we're being restored from a previous state,
             // then we don't need to do anything and should return or else
@@ -63,14 +70,14 @@ public class RecipeMainActivity extends AppCompatActivity {
                 String recipeName = mRecipeData.get(mRecipeKey).getName();
 
                 Bundle bundle = new Bundle();
-                bundle.putParcelableArrayList("ingredients", (ArrayList<Ingredient>) ingredients);
-                bundle.putParcelableArrayList("steps", (ArrayList<Ingredient.Step>) recipeStep);
-                bundle.putString("recipe name", recipeName);
+                bundle.putParcelableArrayList(BUNDLE_INGREDIENTS, (ArrayList<Ingredient>) ingredients);
+                bundle.putParcelableArrayList(BUNDLE_STEP, (ArrayList<Ingredient.Step>) recipeStep);
+                bundle.putString(BUNDLE_NAME, recipeName);
 
                 RecipeDescriptionFragment frag = new RecipeDescriptionFragment();
                 frag.setArguments(bundle);
 
-                getSupportFragmentManager().beginTransaction().addToBackStack("description")
+                getSupportFragmentManager().beginTransaction().addToBackStack(BACKSTACK_STEP_DESCRIPTION)
                         .replace(R.id.recipe_main_fragment, frag).commit();
 
             }else {
@@ -80,10 +87,9 @@ public class RecipeMainActivity extends AppCompatActivity {
 
 
                 // Add the fragment to the 'fragment_container' FrameLayout
-                getSupportFragmentManager().beginTransaction().addToBackStack("home")
+                getSupportFragmentManager().beginTransaction().addToBackStack(BACKSTACK_STEP_HOME)
                         .add(R.id.recipe_main_fragment, firstFragment).commit();
             }
-        }
     }
 
     @Override
@@ -100,12 +106,12 @@ public class RecipeMainActivity extends AppCompatActivity {
             if(fragTag.contains("RecipeDescriptionFragment")){
 
                 RecipeMainFragment firstFragment = new RecipeMainFragment();
-                getSupportFragmentManager().beginTransaction().addToBackStack("home")
+                getSupportFragmentManager().beginTransaction().addToBackStack(BACKSTACK_STEP_HOME)
                         .replace(R.id.recipe_main_fragment, firstFragment).commit();
             }
 
             if(fragTag.contains("StepDetailsFragment")){
-                    getSupportFragmentManager().popBackStack("description", 0);
+                    getSupportFragmentManager().popBackStack(BACKSTACK_STEP_DESCRIPTION, 0);
             }
         }
 
@@ -121,11 +127,11 @@ public class RecipeMainActivity extends AppCompatActivity {
             String fragTag = currentFrag.toString();
 
             if(fragTag.contains("RecipeDescriptionFragment")){
-                getSupportFragmentManager().popBackStack("home", 0);
+                getSupportFragmentManager().popBackStack(BACKSTACK_STEP_HOME, 0);
             }
 
             if(fragTag.contains("StepDetailsFragment")) {
-                getSupportFragmentManager().popBackStack("description", 0);
+                getSupportFragmentManager().popBackStack(BACKSTACK_STEP_DESCRIPTION, 0);
             }
 
         } else {

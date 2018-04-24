@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import java.util.ArrayList;
 
 import br.cassioy.bakingapp.model.Recipe;
@@ -20,6 +22,8 @@ import butterknife.ButterKnife;
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder> {
 
     private ArrayList<Recipe> mRecipes;
+    private int recipeImageId;
+    private String recipeImageUrl;
 
     public RecipeAdapter(ArrayList<Recipe> recipes) {
         this.mRecipes = recipes;
@@ -51,26 +55,33 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
     public void onBindViewHolder(RecipeViewHolder holder, int position) {
         holder.recipeName.setText(mRecipes.get(position).getName());
 
-        //set imageview drawable based on recipe name
+        //set mockups drawable based on recipe name, in case of no Recipe image is available
         switch (mRecipes.get(position).getName()){
             case "Nutella Pie":
-                holder.recipeCardImage.setImageResource(R.drawable.nutella_pie);
+                recipeImageId = R.drawable.nutella_pie;
                 break;
 
             case "Brownies":
-                holder.recipeCardImage.setImageResource(R.drawable.brownies);
+                recipeImageId = R.drawable.brownies;
                 break;
 
             case "Yellow Cake":
-                holder.recipeCardImage.setImageResource(R.drawable.yellowcake);
+                recipeImageId = R.drawable.yellowcake;
                 break;
 
             case "Cheesecake":
-                holder.recipeCardImage.setImageResource(R.drawable.cheesecake);
+                recipeImageId = R.drawable.cheesecake;
                 break;
 
             default: break;
         }
+
+        recipeImageUrl = mRecipes.get(position).getImage();
+
+        Picasso.get().load(recipeImageUrl.trim().isEmpty() ? null : recipeImageUrl)
+                .error(recipeImageId)
+                .placeholder(recipeImageId)
+                .into(holder.recipeCardImage);
     }
 
     @Override

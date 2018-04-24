@@ -20,15 +20,11 @@ import static br.cassioy.bakingapp.RecipeMainActivity.RECIPE_KEY;
  */
 public class IngredientWidget extends AppWidgetProvider {
 
-
-
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager, ArrayList<Recipe> recipe,
                                 int appWidgetId) {
 
         CharSequence widgetText = IngredientWidgetConfigureActivity.loadTitlePref(context, appWidgetId);
         int widgetId = IngredientWidgetConfigureActivity.loadIndexPref(context, appWidgetId);
-
-
 
         // Construct the RemoteViews object
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.ingredient_widget);
@@ -36,7 +32,7 @@ public class IngredientWidget extends AppWidgetProvider {
         Intent intent = new Intent(context, RecipeMainActivity.class);
         intent.putParcelableArrayListExtra(RECIPE_DATA, recipe);
         intent.putExtra(RECIPE_KEY, widgetId);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, appWidgetId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         switch (widgetId){
             case 0: views.setImageViewResource(R.id.widget_recipe_image, R.drawable.nutella_pie);
@@ -61,7 +57,6 @@ public class IngredientWidget extends AppWidgetProvider {
 
         views.setTextViewText(R.id.appwidget_text, widgetText);
         views.setOnClickPendingIntent(R.id.recipe_widget_layout, pendingIntent);
-
 
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views);
